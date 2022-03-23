@@ -1,0 +1,4 @@
+-std=c17
+-flto
+-Wall
+-g3
