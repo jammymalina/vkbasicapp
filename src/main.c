@@ -2,6 +2,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "./lib/vulkan/core/state.h"
+#include "./lib/vulkan/initializer/initializer.h"
+
 int main(int argc, char* args[]) {
     SDL_Window* window;
 
@@ -14,6 +17,9 @@ int main(int argc, char* args[]) {
         printf("Could not create window: %s\n", SDL_GetError());
         return 1;
     }
+
+    VulkanState state = vulkan_state_create();
+    vulkan_state_init(&state);
 
     bool is_running = true;
 
@@ -32,6 +38,8 @@ int main(int argc, char* args[]) {
             }
         }
     }
+
+    vulkan_state_destroy(&state);
 
     SDL_DestroyWindow(window);
     SDL_Quit();

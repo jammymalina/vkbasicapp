@@ -1,4 +1,5 @@
 -std=c17
 -flto
--Wall
 -g3
+-DVK_NO_PROTOTYPES
+-DDEBUG
