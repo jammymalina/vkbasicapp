@@ -15,21 +15,12 @@ typedef unsigned char byte;
 #define MB_TO_BYTES(MB_SIZE) ((MB_SIZE) << 20)
 #define BYTES_TO_MB(BYTE_SIZE) ((BYTE_SIZE) >> 20)
 
-#define ASSERT_ALLOC(x, s)                                                                                             \
+#define ASSERT_ALLOC(x, s, ...)                                                                                        \
     do {                                                                                                               \
         if ((x) == NULL) {                                                                                             \
             SDL_OutOfMemory();                                                                                         \
             log_error("%s: %s", s, #x " == NULL");                                                                     \
-            exit(EXIT_FAILURE);                                                                                        \
-        }                                                                                                              \
-    } while (0)
-
-#define IS_ALLOC_VALID(x, s)                                                                                           \
-    do {                                                                                                               \
-        if ((x) == NULL) {                                                                                             \
-            SDL_OutOfMemory();                                                                                         \
-            log_error("%s: %s", s, #x " == NULL");                                                                     \
-            return false;                                                                                              \
+            return __VA_ARGS__;                                                                                        \
         }                                                                                                              \
     } while (0)
 

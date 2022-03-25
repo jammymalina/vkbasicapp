@@ -1,48 +1,17 @@
-#include <SDL2/SDL.h>
-#include <stdbool.h>
-#include <stdio.h>
 
-#include "./lib/vulkan/core/state.h"
-#include "./lib/vulkan/initializer/initializer.h"
+#include "./lib/app/app.h"
 
 int main(int argc, char* args[]) {
-    SDL_Window* window;
+    App app = app_create();
+    app_init(&app);
 
-    SDL_Init(SDL_INIT_VIDEO);
-
-    window =
-        SDL_CreateWindow("Basic app", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 1280, 720, SDL_WINDOW_VULKAN);
-
-    if (window == NULL) {
-        printf("Could not create window: %s\n", SDL_GetError());
+    if (!app_is_init(&app)) {
         return 1;
     }
 
-    VulkanState state = vulkan_state_create();
-    vulkan_state_init(&state);
+    app_start(&app);
 
-    bool is_running = true;
-
-    while (is_running) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-                case SDL_QUIT:
-                    is_running = false;
-                    break;
-                case SDL_KEYUP:
-                    if (event.key.keysym.sym == SDLK_ESCAPE) {
-                        is_running = false;
-                    }
-                    break;
-            }
-        }
-    }
-
-    vulkan_state_destroy(&state);
-
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+    app_destroy(&app);
 
     return 0;
 }
