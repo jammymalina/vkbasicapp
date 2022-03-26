@@ -5,12 +5,14 @@
 
 #include "../core/instance.h"
 #include "../core/library.h"
+#include "../core/physical_device.h"
 #include "../core/system_info/system_info.h"
 
 typedef struct VulkanState {
     Library library;
     SystemInfo system;
     Instance instance;
+    PhysicalDevice physical_device;
     bool is_init;
 } VulkanState;
 
@@ -19,6 +21,7 @@ static inline VulkanState vulkan_state_create() {
         .library = library_create(),
         .system = system_info_create(),
         .instance = instance_create(),
+        .physical_device = physical_device_create(),
         .is_init = false,
     };
     return state;

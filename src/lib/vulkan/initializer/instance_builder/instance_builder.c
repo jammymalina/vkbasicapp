@@ -42,13 +42,24 @@ static InstanceError instance_builder_load_window_extensions(InstanceBuilder* bu
     return INSTANCE_NO_ERROR;
 }
 
-static void instance_builder_load_default_extensions(InstanceBuilder* builder) {
+static InstanceError instance_builder_load_surface(InstanceBuilder* builder, Instance* instance) {
+    VkSurfaceKHR surface;
+    if (!SDL_Vulkan_CreateSurface(builder->window_handle, instance->handle, &surface)) {
+        log_error("SDL_Vulkan_CreateSurface(): %s", SDL_GetError());
+        return WINDOWING_EXTENSIONS_NOT_PRESENT;
+    }
+    instance->surface = surface;
+    return INSTANCE_NO_ERROR;
+}
+
+static bool instance_builder_load_default_extensions(InstanceBuilder* builder) {
+    bool status = true;
+#ifdef DEBUG
     if (builder->debug_enabled && system_info_has_debug_utils(builder->system)) {
-        instance_builder_add_extension(builder, VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+        status &= instance_builder_add_extension(builder, VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
-    if (system_info_is_extension_available(builder->system, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
-        instance_builder_add_extension(builder, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
-    }
+    return status;
+#endif
 }
 
 static bool instance_builder_check_layers(const InstanceBuilder* builder) {
@@ -69,6 +80,7 @@ static bool instance_builder_check_extensions(const InstanceBuilder* builder) {
     return true;
 }
 
+#ifdef DEBUG
 static VkResult instance_builder_create_debug_messenger(
     const InstanceBuilder* builder, VkDebugUtilsMessengerEXT* messenger, VkInstance instance) {
     VkDebugUtilsMessengerCreateInfoEXT messenger_info = {
@@ -83,6 +95,7 @@ static VkResult instance_builder_create_debug_messenger(
     VkResult status = vkCreateDebugUtilsMessengerEXT(instance, &messenger_info, NULL, messenger);
     return status;
 }
+#endif
 
 InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instance) {
     InstanceError status = instance_builder_validate(builder);
@@ -90,7 +103,9 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
 
     status = instance_builder_load_window_extensions(builder);
     ASSERT_NO_ERROR(status, status);
-    instance_builder_load_default_extensions(builder);
+    if (!instance_builder_load_default_extensions(builder)) {
+        return TOO_MANY_INSTANCE_EXTENSIONS_REQUESTED;
+    }
 
     if (!instance_builder_check_extensions(builder)) {
         return REQUESTED_INSTANCE_EXTENSIONS_NOT_PRESENT;
@@ -99,6 +114,7 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
         return REQUESTED_INSTANCE_LAYERS_NOT_PRESENT;
     }
 
+    instance->api_version = VK_API_VERSION_1_3;
     VkApplicationInfo vk_application_info = {
         .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
         .pNext = NULL,
@@ -106,7 +122,7 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
         .applicationVersion = builder->application_version,
         .pEngineName = builder->engine_name,
         .engineVersion = builder->engine_version,
-        .apiVersion = VK_API_VERSION_1_3,
+        .apiVersion = instance->api_version,
     };
 
     VkInstanceCreateInfo vk_instance_create_info = {
@@ -136,11 +152,16 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
         return FAILED_TO_LOAD_INSTANCE_FUNCTIONS;
     }
 
+    status = instance_builder_load_surface(builder, instance);
+    ASSERT_NO_ERROR(status, status);
+
+#ifdef DEBUG
     VkResult messenger_status =
         instance_builder_create_debug_messenger(builder, &instance->debug_messenger, instance->handle);
     if (messenger_status != VK_SUCCESS) {
         return FAILED_CREATE_DEBUG_MESSENGER;
     }
+#endif
 
     return status;
 }

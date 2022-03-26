@@ -1,6 +1,18 @@
 #ifndef VULKAN_CORE_ERRORS_H
 #define VULKAN_CORE_ERRORS_H
 
+#include "../../core/logger/logger.h"
+#include "../utils/debug.h"
+
+#define ASSERT_VULKAN_STATUS(status, message, ...)                                                                     \
+    do {                                                                                                               \
+        VkResult reneger_strummy = status;                                                                             \
+        if (reneger_strummy != VK_SUCCESS) {                                                                           \
+            log_error("VK error: %s - %s", message, vulkan_result_to_string(reneger_strummy));                         \
+            return __VA_ARGS__;                                                                                        \
+        }                                                                                                              \
+    } while (0)
+
 #define ASSERT_NO_ERROR(err, ...)                                                                                      \
     do {                                                                                                               \
         if (err) {                                                                                                     \
@@ -81,6 +93,41 @@ static inline const char* instance_error_to_string(InstanceError err) {
             return "WINDOWING_EXTENSIONS_NOT_PRESENT";
         case TOO_MANY_INSTANCE_EXTENSIONS_REQUESTED:
             return "TOO_MANY_INSTANCE_EXTENSIONS_REQUESTED";
+        default:
+            return "Uknown";
+    }
+}
+
+typedef enum PhysicalDeviceError {
+    PHYSICAL_DEVICE_NO_ERROR,
+    NO_INSTANCE_PROVIDED,
+    NO_SURFACE_PROVIDED,
+    FAILED_ENUMERATE_PHYSICAL_DEVICES,
+    FAILED_ENUMERATE_PHYSICAL_DEVICE_EXTENSIONS,
+    NO_PHYSICAL_DEVICES_FOUND,
+    NO_SUITABLE_DEVICE,
+    QUEUE_FAMILY_COUNT_TOO_LARGE,
+    TOO_MANY_PHYSICAL_DEVICE_EXTENSIONS_REQUESTED,
+} PhysicalDeviceError;
+
+static inline const char* physical_device_error_to_string(PhysicalDeviceError err) {
+    switch (err) {
+        case NO_INSTANCE_PROVIDED:
+            return "NO_INSTANCE_PROVIDED";
+        case NO_SURFACE_PROVIDED:
+            return "NO_SURFACE_PROVIDED";
+        case FAILED_ENUMERATE_PHYSICAL_DEVICES:
+            return "FAILED_ENUMERATE_PHYSICAL_DEVICES";
+        case FAILED_ENUMERATE_PHYSICAL_DEVICE_EXTENSIONS:
+            return "FAILED_ENUMERATE_PHYSICAL_DEVICE_EXTENSIONS";
+        case NO_PHYSICAL_DEVICES_FOUND:
+            return "NO_PHYSICAL_DEVICES_FOUND";
+        case NO_SUITABLE_DEVICE:
+            return "NO_SUITABLE_DEVICE";
+        case QUEUE_FAMILY_COUNT_TOO_LARGE:
+            return "QUEUE_FAMILY_COUNT_TOO_LARGE";
+        case TOO_MANY_PHYSICAL_DEVICE_EXTENSIONS_REQUESTED:
+            return "TOO_MANY_PHYSICAL_DEVICE_EXTENSIONS_REQUESTED";
         default:
             return "Uknown";
     }

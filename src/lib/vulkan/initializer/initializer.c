@@ -6,6 +6,7 @@
 #include "../core/library.h"
 #include "./function_loader/function_loader.h"
 #include "./instance_builder/instance_builder.h"
+#include "./physical_device_selector/physical_device_selector.h"
 
 void vulkan_state_init(VulkanState* state, void* window_handle) {
     if (state->is_init) {
@@ -34,6 +35,11 @@ void vulkan_state_init(VulkanState* state, void* window_handle) {
 #endif
     ASSERT_NO_ERROR_LOG(
         instance_builder_build(&instance_builder, &state->instance), InstanceError, instance_error_to_string);
+
+    PhysicalDeviceSelector device_selector = physical_device_selector_create();
+    device_selector.instance = &state->instance;
+    ASSERT_NO_ERROR_LOG(physical_device_selector_select(&device_selector, &state->physical_device), PhysicalDeviceError,
+        physical_device_error_to_string);
 
     state->is_init = true;
 }

@@ -23,7 +23,7 @@
 
 typedef struct InstanceBuilder {
     void* window_handle;
-    SystemInfo* system;
+    const SystemInfo* system;
 
     const char* app_name;
     const char* engine_name;
