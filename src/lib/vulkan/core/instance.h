@@ -22,7 +22,7 @@ static inline void instance_destroy(Instance* instance) {
     }
 #ifdef DEBUG
     if (instance->debug_messenger != VK_NULL_HANDLE) {
-        // vkDestroyDebugUtilsMessengerEXT(instance->handle, instance->debug_messenger, VK_NULL_HANDLE);
+        vkDestroyDebugUtilsMessengerEXT(instance->handle, instance->debug_messenger, VK_NULL_HANDLE);
     }
 #endif
     vkDestroyInstance(instance->handle, VK_NULL_HANDLE);

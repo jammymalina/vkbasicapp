@@ -1,43 +1,69 @@
 #include "./instance_builder.h"
 
 #include <SDL2/SDL_vulkan.h>
+#include <vulkan/vulkan_core.h>
 
 #include "../../../core/logger/logger.h"
 #include "../../../core/memory/memory.h"
+#include "../../core/errors.h"
 #include "../../core/functions.h"
+#include "../../initializer/function_loader/function_loader.h"
 
-static InstanceError instance_builder_get_extensions(InstanceBuilder* builder) {
+static InstanceError instance_builder_validate(const InstanceBuilder* builder) {
     if (builder->window_handle == NULL) {
-        log_error("Unable to get available instance extensions, builder does not have window set");
         return WINDOWING_EXTENSIONS_NOT_PRESENT;
     }
-
-    if (!SDL_Vulkan_GetInstanceExtensions(builder->window_handle, &builder->available_extension_count, NULL)) {
-        log_error("SDL_Vulkan_GetInstanceExtensions(): %s", SDL_GetError());
-        return WINDOWING_EXTENSIONS_NOT_PRESENT;
+    if (builder->system == NULL) {
+        return NO_SYSTEM_INFO_PRESENT;
     }
-
-    builder->available_extensions = mem_alloc(sizeof(const char*) * builder->available_extension_count);
-    ASSERT_ALLOC(builder->available_extensions, "Failed to allocate memory for vulkan extensions",
-        WINDOWING_EXTENSIONS_NOT_PRESENT);
-
-    if (!SDL_Vulkan_GetInstanceExtensions(
-            builder->window_handle, &builder->available_extension_count, builder->available_extensions)) {
-        log_error("SDL_Vulkan_GetInstanceExtensions(): %s", SDL_GetError());
-        return WINDOWING_EXTENSIONS_NOT_PRESENT;
-    }
-
-    log_info("Available instance extensions: %d", builder->available_extension_count);
-    for (size_t i = 0; i < builder->available_extension_count; i++) {
-        log_info("%s", builder->available_extensions[i]);
-    }
-
     return INSTANCE_NO_ERROR;
 }
 
+static InstanceError instance_builder_load_window_extensions(InstanceBuilder* builder) {
+    uint32_t count = 0;
+
+    if (!SDL_Vulkan_GetInstanceExtensions(builder->window_handle, &count, NULL)) {
+        log_error("SDL_Vulkan_GetInstanceExtensions(): %s", SDL_GetError());
+        return WINDOWING_EXTENSIONS_NOT_PRESENT;
+    }
+
+    if (count + builder->extension_count > INSTANCE_BUILDER_MAX_EXTENSIONS) {
+        return TOO_MANY_INSTANCE_EXTENSIONS_REQUESTED;
+    }
+
+    if (!SDL_Vulkan_GetInstanceExtensions(
+            builder->window_handle, &count, &builder->extensions[builder->extension_count])) {
+        log_error("SDL_Vulkan_GetInstanceExtensions(): %s", SDL_GetError());
+        return WINDOWING_EXTENSIONS_NOT_PRESENT;
+    }
+
+    builder->extension_count += count;
+    return INSTANCE_NO_ERROR;
+}
+
+static VkResult instance_builder_create_debug_messenger(
+    const InstanceBuilder* builder, VkDebugUtilsMessengerEXT* messenger, VkInstance instance) {
+    VkDebugUtilsMessengerCreateInfoEXT messenger_info = {
+        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
+        .pNext = NULL,
+        .flags = 0,
+        .messageSeverity = builder->debug_message_severity,
+        .messageType = builder->debug_message_severity,
+        .pfnUserCallback = builder->debug_callback,
+        .pUserData = NULL,
+    };
+    VkResult status = vkCreateDebugUtilsMessengerEXT(instance, &messenger_info, NULL, messenger);
+    return status;
+}
+
 InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instance) {
-    InstanceError status = instance_builder_get_extensions(builder);
-    if (status) {
+    InstanceError status = instance_builder_validate(builder);
+    if (status != INSTANCE_NO_ERROR) {
+        return status;
+    }
+
+    status = instance_builder_load_window_extensions(builder);
+    if (status != INSTANCE_NO_ERROR) {
         return status;
     }
 
@@ -58,8 +84,8 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
         .pApplicationInfo = &vk_application_info,
         .enabledLayerCount = 0,
         .ppEnabledLayerNames = NULL,
-        .enabledExtensionCount = 0,
-        .ppEnabledExtensionNames = NULL,
+        .enabledExtensionCount = builder->extension_count,
+        .ppEnabledExtensionNames = builder->extensions,
     };
 
     VkInstance handle = VK_NULL_HANDLE;
@@ -71,10 +97,22 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
     }
 
     instance->handle = handle;
+    builder->extension_count = 0;
 
-    mem_free(builder->available_extensions);
-    builder->available_extensions = NULL;
-    builder->available_extension_count = 0;
+    if (status != INSTANCE_NO_ERROR) {
+        return status;
+    }
+
+    FunctionLoaderError load_status = function_loader_load_instance_vulkan_functions(instance->handle);
+    if (load_status != FUNCTION_LOADER_NO_ERROR) {
+        return FAILED_TO_LOAD_INSTANCE_FUNCTIONS;
+    }
+
+    VkResult messenger_status =
+        instance_builder_create_debug_messenger(builder, &instance->debug_messenger, instance->handle);
+    if (messenger_status != VK_SUCCESS) {
+        return FAILED_CREATE_DEBUG_MESSENGER;
+    }
 
     return status;
 }
