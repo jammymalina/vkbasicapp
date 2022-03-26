@@ -11,8 +11,9 @@
 #include "../../utils/debug.h"
 
 #define INSTANCE_BUILDER_MAX_EXTENSIONS 64
+#define INSTANCE_BUILDER_MAX_LAYERS 16
 
-#define INSTANCE_BUILDER_DEFAULT_DEBUG_MESSAFE_SEVERITY                                                                \
+#define INSTANCE_BUILDER_DEFAULT_DEBUG_MESSAGE_SEVERITY                                                                \
     (VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |                  \
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 
@@ -34,8 +35,11 @@ typedef struct InstanceBuilder {
     VkDebugUtilsMessageTypeFlagsEXT debug_message_type;
     PFN_vkDebugUtilsMessengerCallbackEXT debug_callback;
 
+    const char* layers[INSTANCE_BUILDER_MAX_LAYERS];
+    uint32_t layer_count;
+
     const char* extensions[INSTANCE_BUILDER_MAX_EXTENSIONS];
-    unsigned int extension_count;
+    uint32_t extension_count;
 } InstanceBuilder;
 
 static inline InstanceBuilder instance_builder_create() {
@@ -47,7 +51,7 @@ static inline InstanceBuilder instance_builder_create() {
         .application_version = 0,
         .engine_version = 0,
         .debug_enabled = false,
-        .debug_message_severity = INSTANCE_BUILDER_DEFAULT_DEBUG_MESSAFE_SEVERITY,
+        .debug_message_severity = INSTANCE_BUILDER_DEFAULT_DEBUG_MESSAGE_SEVERITY,
         .debug_message_type = INSTANCE_BUILDER_DEFAULT_DEBUG_MESSAGE_TYPE,
         .debug_callback = default_debug_callback,
         .extensions = {},
@@ -57,5 +61,7 @@ static inline InstanceBuilder instance_builder_create() {
 }
 
 InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instance);
+bool instance_builder_add_layer(InstanceBuilder* builder, const char* layer_name);
+bool instance_builder_add_extension(InstanceBuilder* builder, const char* extension_name);
 
 #endif

@@ -5,6 +5,7 @@
 
 #include "../../../core/logger/logger.h"
 #include "../../../core/memory/memory.h"
+#include "../../../core/string/string.h"
 #include "../../core/errors.h"
 #include "../../core/functions.h"
 #include "../../initializer/function_loader/function_loader.h"
@@ -41,6 +42,33 @@ static InstanceError instance_builder_load_window_extensions(InstanceBuilder* bu
     return INSTANCE_NO_ERROR;
 }
 
+static void instance_builder_load_default_extensions(InstanceBuilder* builder) {
+    if (builder->debug_enabled && system_info_has_debug_utils(builder->system)) {
+        instance_builder_add_extension(builder, VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+    }
+    if (system_info_is_extension_available(builder->system, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
+        instance_builder_add_extension(builder, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+    }
+}
+
+static bool instance_builder_check_layers(const InstanceBuilder* builder) {
+    for (uint32_t i = 0; i < builder->layer_count; i++) {
+        if (!system_info_is_layer_available(builder->system, builder->layers[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static bool instance_builder_check_extensions(const InstanceBuilder* builder) {
+    for (uint32_t i = 0; i < builder->extension_count; i++) {
+        if (!system_info_is_extension_available(builder->system, builder->extensions[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 static VkResult instance_builder_create_debug_messenger(
     const InstanceBuilder* builder, VkDebugUtilsMessengerEXT* messenger, VkInstance instance) {
     VkDebugUtilsMessengerCreateInfoEXT messenger_info = {
@@ -48,7 +76,7 @@ static VkResult instance_builder_create_debug_messenger(
         .pNext = NULL,
         .flags = 0,
         .messageSeverity = builder->debug_message_severity,
-        .messageType = builder->debug_message_severity,
+        .messageType = builder->debug_message_type,
         .pfnUserCallback = builder->debug_callback,
         .pUserData = NULL,
     };
@@ -58,13 +86,17 @@ static VkResult instance_builder_create_debug_messenger(
 
 InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instance) {
     InstanceError status = instance_builder_validate(builder);
-    if (status != INSTANCE_NO_ERROR) {
-        return status;
-    }
+    ASSERT_NO_ERROR(status, status);
 
     status = instance_builder_load_window_extensions(builder);
-    if (status != INSTANCE_NO_ERROR) {
-        return status;
+    ASSERT_NO_ERROR(status, status);
+    instance_builder_load_default_extensions(builder);
+
+    if (!instance_builder_check_extensions(builder)) {
+        return REQUESTED_INSTANCE_EXTENSIONS_NOT_PRESENT;
+    }
+    if (!instance_builder_check_layers(builder)) {
+        return REQUESTED_INSTANCE_LAYERS_NOT_PRESENT;
     }
 
     VkApplicationInfo vk_application_info = {
@@ -82,8 +114,8 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
         .pNext = NULL,
         .flags = 0,
         .pApplicationInfo = &vk_application_info,
-        .enabledLayerCount = 0,
-        .ppEnabledLayerNames = NULL,
+        .enabledLayerCount = builder->layer_count,
+        .ppEnabledLayerNames = builder->layers,
         .enabledExtensionCount = builder->extension_count,
         .ppEnabledExtensionNames = builder->extensions,
     };
@@ -93,15 +125,11 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
     if (result != VK_SUCCESS || instance == VK_NULL_HANDLE) {
         handle = VK_NULL_HANDLE;
         status = FAILED_CREATE_INSTANCE;
-        log_error("Unable to create the vulkan instance");
     }
 
     instance->handle = handle;
     builder->extension_count = 0;
-
-    if (status != INSTANCE_NO_ERROR) {
-        return status;
-    }
+    ASSERT_NO_ERROR(status, status);
 
     FunctionLoaderError load_status = function_loader_load_instance_vulkan_functions(instance->handle);
     if (load_status != FUNCTION_LOADER_NO_ERROR) {
@@ -115,4 +143,22 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
     }
 
     return status;
+}
+
+bool instance_builder_add_layer(InstanceBuilder* builder, const char* layer_name) {
+    if (builder->layer_count >= INSTANCE_BUILDER_MAX_LAYERS) {
+        return false;
+    }
+    builder->layers[builder->layer_count] = layer_name;
+    builder->layer_count += 1;
+    return true;
+}
+
+bool instance_builder_add_extension(InstanceBuilder* builder, const char* extension_name) {
+    if (builder->extension_count >= INSTANCE_BUILDER_MAX_EXTENSIONS) {
+        return false;
+    }
+    builder->extensions[builder->extension_count] = extension_name;
+    builder->extension_count += 1;
+    return true;
 }
