@@ -22,7 +22,7 @@ void vulkan_state_init(VulkanState* state, void* window_handle) {
     }
     system_info_display(&state->system);
 
-    InstanceBuilder instance_builder = {};
+    InstanceBuilder instance_builder = {0};
     instance_builder_clear(&instance_builder);
     instance_builder.system = &state->system;
     instance_builder.window_handle = window_handle;
@@ -37,7 +37,7 @@ void vulkan_state_init(VulkanState* state, void* window_handle) {
     ASSERT_NO_ERROR_LOG(
         instance_builder_build(&instance_builder, &state->instance), InstanceError, instance_error_to_string);
 
-    PhysicalDeviceSelector device_selector = {};
+    PhysicalDeviceSelector device_selector = {0};
     physical_device_selector_clear(&device_selector);
     device_selector.instance = &state->instance;
     ASSERT_NO_ERROR_LOG(physical_device_selector_select(&device_selector, &state->physical_device), PhysicalDeviceError,

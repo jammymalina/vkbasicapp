@@ -2,7 +2,7 @@
 #include "./lib/app/app.h"
 
 int main(int argc, char* args[]) {
-    App app = {};
+    App app = {0};
     app_clear(&app);
     app_init(&app);
 

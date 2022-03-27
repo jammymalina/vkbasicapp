@@ -4,7 +4,7 @@
 
 void app_init(App* app) {
     // TODO: Add ini configuration for the app
-    AppWindowBuilder builder = {};
+    AppWindowBuilder builder = {0};
     app_window_builder_clear(&builder);
     builder.width = 1280;
     builder.height = 720;

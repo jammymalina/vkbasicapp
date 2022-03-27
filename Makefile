@@ -2,12 +2,13 @@ TARGET   = basicapp
 
 CC       = gcc
 DEFINES  = -DVK_NO_PROTOTYPES -DDEBUG
-CFLAGS   = -std=c17 -flto -Wall -g3
+CFLAGS   = -std=c17 -Wall -g3
 # DEFINES  = -DVK_NO_PROTOTYPES
 # CFLAGS   = -std=c17 -flto -O3 -march=native
 
 LINKER   = gcc -o
-LFLAGS   = -flto -O3 -march=native -lm -lSDL2
+LFLAGS   = -lm -lSDL2
+# LFLAGS   = -flto -O3 -march=native -lm -lSDL2
 
 GLSL_CC    = glslc
 GLSL_FLAGS =
