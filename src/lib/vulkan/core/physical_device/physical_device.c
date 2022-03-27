@@ -1,9 +1,11 @@
 #include "./physical_device.h"
 
 #include <stddef.h>
+#include <stdint.h>
 #include <vulkan/vulkan_core.h>
 
 #include "../../../core/memory/memory.h"
+#include "../../../core/string/string.h"
 
 static void physical_device_feature_items_set_next_node(void* node, const void* next_node, size_t next_node_offset) {
     byte* byte_ptr = (byte*)node;
@@ -101,6 +103,24 @@ void physical_device_feature_items_destroy(PhysicalDeviceFeatureItems* items) {
         mem_free(items->items[i].features);
     }
     physical_device_feature_items_clear(items);
+}
+
+bool physical_device_add_extension(PhysicalDevice* device, const char* extension_name) {
+    if (device->extension_count >= PHYSICAL_DEVICE_MAX_EXTENSIONS) {
+        return false;
+    }
+    string_copy(extension_name, device->extensions[device->extension_count], VK_MAX_EXTENSION_NAME_SIZE);
+    device->extension_count += 1;
+    return true;
+}
+
+bool physical_device_has_extension(const PhysicalDevice* device, const char* extension_name) {
+    for (uint32_t i = 0; i < device->extension_count; i++) {
+        if (string_equal(extension_name, device->extensions[i])) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void physical_device_destroy(PhysicalDevice* device) {

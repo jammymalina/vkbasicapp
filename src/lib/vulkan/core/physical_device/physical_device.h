@@ -7,6 +7,7 @@
 #include <vulkan/vulkan_core.h>
 
 #include "../../../core/rating.h"
+#include "../../../core/string/string.h"
 #include "../functions.h"
 
 #define PHYSICAL_DEVICE_MAX_EXTENSIONS 256
@@ -52,10 +53,9 @@ void physical_device_feature_items_destroy(PhysicalDeviceFeatureItems* items);
 typedef struct PhysicalDevice {
     VkPhysicalDevice handle;
 
-    const char* name;
+    char name[VK_MAX_PHYSICAL_DEVICE_NAME_SIZE];
 
     VkPhysicalDeviceFeatures features;
-    VkPhysicalDeviceFeatures2 features2;
     VkPhysicalDeviceProperties properties;
     VkPhysicalDeviceMemoryProperties memory_properties;
     PhysicalDeviceFeatureItems extended_features_chain;
@@ -71,17 +71,18 @@ typedef struct PhysicalDevice {
 
 static inline void physical_device_clear(PhysicalDevice* device) {
     device->handle = VK_NULL_HANDLE;
-    device->name = "";
     device->queue_family_count = 0;
     device->extension_count = 0;
     device->rating = LOW_RATING;
     device->features = (VkPhysicalDeviceFeatures){0};
-    device->features2 = (VkPhysicalDeviceFeatures2){0};
     device->properties = (VkPhysicalDeviceProperties){0};
     device->memory_properties = (VkPhysicalDeviceMemoryProperties){0};
+    string_copy("", device->name, VK_MAX_PHYSICAL_DEVICE_NAME_SIZE);
     physical_device_feature_items_clear(&device->extended_features_chain);
 }
 
+bool physical_device_add_extension(PhysicalDevice* device, const char* extension_name);
+bool physical_device_has_extension(const PhysicalDevice* device, const char* extension_name);
 void physical_device_destroy(PhysicalDevice* device);
 
 #endif
