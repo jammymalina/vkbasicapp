@@ -6,7 +6,7 @@
 
 #include "../../core/errors.h"
 #include "../../core/instance.h"
-#include "../../core/physical_device.h"
+#include "../../core/physical_device/physical_device.h"
 
 typedef enum PreferredDeviceType { OTHER_DEVICE, INTEGRATED_GPU, DISCRETE_GPU, VIRTUAL_GPU, CPU } PreferredDeviceType;
 
@@ -28,8 +28,7 @@ typedef struct PhysicalDeviceSelector {
 
     VkPhysicalDeviceFeatures required_features;
     VkPhysicalDeviceFeatures2 required_features2;
-    PhysicalDeviceFeatureNode extended_features_chain[PHYSICAL_DEVICE_MAX_FEATURE_NODES];
-    uint32_t extended_features_chain_length;
+    PhysicalDeviceFeatureItems extended_features_chain;
 
     const char* required_extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS];
     uint32_t required_extension_count;
@@ -40,41 +39,34 @@ typedef struct PhysicalDeviceSelector {
     bool enable_portability_subset;
 } PhysicalDeviceSelector;
 
-static inline PhysicalDeviceSelector physical_device_selector_create() {
-    PhysicalDeviceSelector selector = {
-        .instance = NULL,
-        .prefered_device_type = DISCRETE_GPU,
-        .allow_any_type = true,
-        .desired_api_version = VK_VERSION_1_3,
-        .require_present = true,
-        .require_dedicated_transfer_queue = false,
-        .require_dedicated_compute_queue = false,
-        .require_separate_transfer_queue = false,
-        .require_separate_compute_queue = false,
-        .required_mem_size = 0,
-        .desired_mem_size = 0,
-        .required_features = {},
-        .required_features2 = {},
-        .extended_features_chain = {},
-        .extended_features_chain_length = 0,
-        .required_extensions = {},
-        .required_extension_count = 0,
-        .desired_extensions = {},
-        .desired_extension_count = 0,
-        .use_first_gpu_unconditionally = false,
-        .enable_portability_subset = false,
-    };
-    return selector;
+static inline void physical_device_selector_clear(PhysicalDeviceSelector* selector) {
+    selector->instance = NULL;
+    selector->prefered_device_type = DISCRETE_GPU;
+    selector->allow_any_type = true;
+    selector->desired_api_version = VK_VERSION_1_3;
+    selector->require_present = true;
+    selector->require_dedicated_transfer_queue = false;
+    selector->require_dedicated_compute_queue = false;
+    selector->require_separate_transfer_queue = false;
+    selector->require_separate_compute_queue = false;
+    selector->required_mem_size = 0;
+    selector->desired_mem_size = 0;
+    selector->required_extension_count = 0;
+    selector->desired_extension_count = 0;
+    selector->use_first_gpu_unconditionally = false;
+    selector->enable_portability_subset = false;
 };
 
 PhysicalDeviceError physical_device_selector_select(PhysicalDeviceSelector* selector, PhysicalDevice* device);
+
 bool physical_device_selector_add_required_extension(PhysicalDeviceSelector* selector, const char* extension_name);
 bool physical_device_selector_add_desired_extension(PhysicalDeviceSelector* selector, const char* extension_name);
-bool physical_device_selector_add_required_features_11(
-    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan11Features features_11);
-bool physical_device_selector_add_required_features_12(
-    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan12Features features_12);
-bool physical_device_selector_add_required_features_13(
-    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan13Features features_13);
+
+void physical_device_selector_add_extended_required_features_11(
+    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan11Features features);
+void physical_device_selector_add_extended_required_features_12(
+    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan12Features features);
+void physical_device_selector_add_extended_required_features_13(
+    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan13Features features);
 
 #endif

@@ -4,11 +4,12 @@
 
 void app_init(App* app) {
     // TODO: Add ini configuration for the app
-    AppWindowBuilder builder = app_window_builder_create();
+    AppWindowBuilder builder = {};
+    app_window_builder_clear(&builder);
     builder.width = 1280;
     builder.height = 720;
     builder.title = "Basic app";
-    app->window = app_window_builder_build(&builder);
+    app_window_builder_build(&builder, &app->window);
 
     vulkan_state_init(&app->state, app->window.handle);
 }
@@ -38,4 +39,5 @@ void app_start(App* app) {
 void app_destroy(App* app) {
     vulkan_state_destroy(&app->state);
     app_window_destroy(&app->window);
+    app_clear(app);
 }

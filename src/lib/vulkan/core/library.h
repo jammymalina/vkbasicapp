@@ -13,9 +13,9 @@ typedef struct Library {
     void* load_function;
 } Library;
 
-static inline Library library_create() {
-    Library library = {.loaded = false, .load_function = NULL};
-    return library;
+static inline void library_clear(Library* library) {
+    library->loaded = false;
+    library->load_function = NULL;
 }
 
 static inline LibraryError library_load(Library* library) {

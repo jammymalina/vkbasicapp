@@ -15,24 +15,20 @@ typedef struct AppWindowBuilder {
     int width, height;
 } AppWindowBuilder;
 
-static inline AppWindow app_window_create() {
-    AppWindow window = {.handle = NULL, .is_init = false};
-    return window;
+static inline void app_window_clear(AppWindow* window) {
+    window->handle = NULL;
+    window->is_init = false;
 }
 
-static inline AppWindowBuilder app_window_builder_create() {
-    AppWindowBuilder builder = {
-        .title = "",
-        .x = SDL_WINDOWPOS_UNDEFINED,
-        .y = SDL_WINDOWPOS_UNDEFINED,
-        .width = 600,
-        .height = 400,
-    };
-    return builder;
+static inline void app_window_builder_clear(AppWindowBuilder* builder) {
+    builder->title = "";
+    builder->x = SDL_WINDOWPOS_UNDEFINED;
+    builder->y = SDL_WINDOWPOS_UNDEFINED;
+    builder->width = 600;
+    builder->height = 400;
 }
 
-AppWindow app_window_builder_build(const AppWindowBuilder* builder);
-
+void app_window_builder_build(const AppWindowBuilder* builder, AppWindow* app_window);
 void app_window_destroy(AppWindow* window);
 
 #endif

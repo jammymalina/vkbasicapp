@@ -107,9 +107,5 @@ void system_info_destroy(SystemInfo* info) {
     if (info->available_extension_count > 0) {
         mem_free(info->available_extensions);
     }
-
-    info->available_layers = NULL;
-    info->available_layer_count = 0;
-    info->available_extensions = NULL;
-    info->available_extension_count = 0;
+    system_info_clear(info);
 }

@@ -15,14 +15,11 @@ typedef struct SystemInfo {
     uint32_t available_extension_count;
 } SystemInfo;
 
-static inline SystemInfo system_info_create() {
-    SystemInfo info = {
-        .available_layers = NULL,
-        .available_layer_count = 0,
-        .available_extensions = NULL,
-        .available_extension_count = 0,
-    };
-    return info;
+static inline void system_info_clear(SystemInfo* info) {
+    info->available_layers = NULL;
+    info->available_layer_count = 0;
+    info->available_extensions = NULL;
+    info->available_extension_count = 0;
 }
 
 static inline void system_info_display(const SystemInfo* info) {

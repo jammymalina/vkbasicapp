@@ -42,22 +42,18 @@ typedef struct InstanceBuilder {
     uint32_t extension_count;
 } InstanceBuilder;
 
-static inline InstanceBuilder instance_builder_create() {
-    InstanceBuilder builder = {
-        .window_handle = NULL,
-        .system = NULL,
-        .app_name = "app",
-        .engine_name = "engine",
-        .application_version = 0,
-        .engine_version = 0,
-        .debug_enabled = false,
-        .debug_message_severity = INSTANCE_BUILDER_DEFAULT_DEBUG_MESSAGE_SEVERITY,
-        .debug_message_type = INSTANCE_BUILDER_DEFAULT_DEBUG_MESSAGE_TYPE,
-        .debug_callback = default_debug_callback,
-        .extensions = {},
-        .extension_count = 0,
-    };
-    return builder;
+static inline void instance_builder_clear(InstanceBuilder* builder) {
+    builder->window_handle = NULL;
+    builder->system = NULL;
+    builder->app_name = "app";
+    builder->engine_name = "engine";
+    builder->application_version = 0;
+    builder->engine_version = 0;
+    builder->debug_enabled = false;
+    builder->debug_message_severity = INSTANCE_BUILDER_DEFAULT_DEBUG_MESSAGE_SEVERITY;
+    builder->debug_message_type = INSTANCE_BUILDER_DEFAULT_DEBUG_MESSAGE_TYPE;
+    builder->debug_callback = default_debug_callback;
+    builder->extension_count = 0;
 }
 
 InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instance);

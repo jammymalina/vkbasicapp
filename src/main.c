@@ -2,7 +2,8 @@
 #include "./lib/app/app.h"
 
 int main(int argc, char* args[]) {
-    App app = app_create();
+    App app = {};
+    app_clear(&app);
     app_init(&app);
 
     if (!app_is_init(&app)) {

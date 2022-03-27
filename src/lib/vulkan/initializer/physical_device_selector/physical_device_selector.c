@@ -67,53 +67,14 @@ static inline PhysicalDeviceError physical_device_load_extensions(PhysicalDevice
 
 static inline void physical_device_selector_load_extended_feature_chain(
     PhysicalDeviceSelector* selector, PhysicalDevice* device) {
-    if (selector->extended_features_chain_length == 0) {
-        return;
-    }
-
     if (device->properties.apiVersion < selector->instance->api_version) {
         return;
     }
-
-    PhysicalDeviceFeatureNode* prev = NULL;
-    for (uint32_t i = 0; i < selector->extended_features_chain_length; i++) {
-        if (prev != NULL) {
-            if (prev->struct_type == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES) {
-                prev->features_11.pNext = (void*)&selector->extended_features_chain[i];
-            }
-            if (prev->struct_type == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES) {
-                prev->features_12.pNext = (void*)&selector->extended_features_chain[i];
-            }
-            if (prev->struct_type == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES) {
-                prev->features_13.pNext = (void*)&selector->extended_features_chain[i];
-            }
-            prev = &selector->extended_features_chain[i];
-        }
-    }
-
-    if (prev == NULL) {
-        return;
-    }
-
-    if (prev->struct_type == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES) {
-        prev->features_11.pNext = NULL;
-    }
-    if (prev->struct_type == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES) {
-        prev->features_12.pNext = NULL;
-    }
-    if (prev->struct_type == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES) {
-        prev->features_13.pNext = NULL;
-    }
+    physical_device_feature_items_create_chain(&device->extended_features_chain);
 
     device->features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    device->features2.pNext = &selector->extended_features_chain[0];
+    device->features2.pNext = physical_device_feature_items_get_head(&device->extended_features_chain);
     vkGetPhysicalDeviceFeatures2(device->handle, &device->features2);
-
-    for (uint32_t i = 0; i < selector->extended_features_chain_length; i++) {
-        device->extended_features_chain[i] = selector->extended_features_chain[i];
-    }
-
-    return;
 }
 
 static PhysicalDeviceError physical_device_selector_load_device(
@@ -132,7 +93,7 @@ static PhysicalDeviceError physical_device_selector_load_device(
 }
 
 PhysicalDeviceError physical_device_selector_select(PhysicalDeviceSelector* selector, PhysicalDevice* device) {
-    *device = physical_device_create();
+    physical_device_clear(device);
 
     PhysicalDeviceError status = physical_device_selector_validate(selector);
     ASSERT_NO_ERROR(status, status);
@@ -176,41 +137,17 @@ bool physical_device_selector_add_desired_extension(PhysicalDeviceSelector* sele
     return true;
 }
 
-bool physical_device_selector_add_required_features_11(
-    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan11Features features_11) {
-    if (selector->extended_features_chain_length >= PHYSICAL_DEVICE_MAX_FEATURE_NODES) {
-        return false;
-    }
-    PhysicalDeviceFeatureNode* node = &selector->extended_features_chain[selector->extended_features_chain_length];
-    node->struct_type = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
-    node->features_11 = features_11;
-
-    selector->extended_features_chain_length += 1;
-    return true;
+void physical_device_selector_add_extended_required_features_11(
+    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan11Features features) {
+    selector->extended_features_chain.items[PHYSICAL_DEVICE_VULKAN_11_FEATURE_TYPE].features_11 = features;
 }
 
-bool physical_device_selector_add_required_features_12(
-    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan12Features features_12) {
-    if (selector->extended_features_chain_length >= PHYSICAL_DEVICE_MAX_FEATURE_NODES) {
-        return false;
-    }
-    PhysicalDeviceFeatureNode* node = &selector->extended_features_chain[selector->extended_features_chain_length];
-    node->struct_type = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
-    node->features_12 = features_12;
-
-    selector->extended_features_chain_length += 1;
-    return true;
+void physical_device_selector_add_extended_required_features_12(
+    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan12Features features) {
+    selector->extended_features_chain.items[PHYSICAL_DEVICE_VULKAN_12_FEATURE_TYPE].features_12 = features;
 }
 
-bool physical_device_selector_add_required_features_13(
-    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan13Features features_13) {
-    if (selector->extended_features_chain_length >= PHYSICAL_DEVICE_MAX_FEATURE_NODES) {
-        return false;
-    }
-    PhysicalDeviceFeatureNode* node = &selector->extended_features_chain[selector->extended_features_chain_length];
-    node->struct_type = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
-    node->features_13 = features_13;
-
-    selector->extended_features_chain_length += 1;
-    return true;
+void physical_device_selector_add_extended_required_features_13(
+    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan13Features features) {
+    selector->extended_features_chain.items[PHYSICAL_DEVICE_VULKAN_13_FEATURE_TYPE].features_13 = features;
 }

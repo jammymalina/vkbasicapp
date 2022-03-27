@@ -11,9 +11,9 @@ typedef struct App {
     VulkanState state;
 } App;
 
-static inline App app_create() {
-    App app = {.window = app_window_create(), .state = vulkan_state_create()};
-    return app;
+static inline void app_clear(App* app) {
+    app_window_clear(&app->window);
+    vulkan_state_clear(&app->state);
 }
 
 void app_init(App* app);

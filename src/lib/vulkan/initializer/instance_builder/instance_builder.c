@@ -115,7 +115,7 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
     }
 
     instance->api_version = VK_API_VERSION_1_3;
-    VkApplicationInfo vk_application_info = {
+    VkApplicationInfo application_info = {
         .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
         .pNext = NULL,
         .pApplicationName = builder->app_name,
@@ -125,11 +125,11 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
         .apiVersion = instance->api_version,
     };
 
-    VkInstanceCreateInfo vk_instance_create_info = {
+    VkInstanceCreateInfo instance_create_info = {
         .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
         .pNext = NULL,
         .flags = 0,
-        .pApplicationInfo = &vk_application_info,
+        .pApplicationInfo = &application_info,
         .enabledLayerCount = builder->layer_count,
         .ppEnabledLayerNames = builder->layers,
         .enabledExtensionCount = builder->extension_count,
@@ -137,7 +137,7 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
     };
 
     VkInstance handle = VK_NULL_HANDLE;
-    VkResult result = vkCreateInstance(&vk_instance_create_info, NULL, &handle);
+    VkResult result = vkCreateInstance(&instance_create_info, NULL, &handle);
     if (result != VK_SUCCESS || instance == VK_NULL_HANDLE) {
         handle = VK_NULL_HANDLE;
         status = FAILED_CREATE_INSTANCE;

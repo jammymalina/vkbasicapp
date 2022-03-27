@@ -4,27 +4,25 @@
 
 #include "../core/logger/logger.h"
 
-AppWindow app_window_builder_build(const AppWindowBuilder* builder) {
-    AppWindow app_window = app_window_create();
+void app_window_builder_build(const AppWindowBuilder* builder, AppWindow* window) {
+    app_window_clear(window);
 
     SDL_Init(SDL_INIT_VIDEO);
 
-    app_window.handle =
+    window->handle =
         SDL_CreateWindow(builder->title, builder->x, builder->y, builder->width, builder->height, SDL_WINDOW_VULKAN);
-    if (app_window.handle == NULL) {
+    if (window->handle == NULL) {
         log_error("Unable to create the window: %s", SDL_GetError());
-        return app_window;
+        return;
     }
 
-    app_window.is_init = true;
-    return app_window;
+    window->is_init = true;
 }
 
 void app_window_destroy(AppWindow* window) {
     if (window->handle) {
         SDL_DestroyWindow(window->handle);
     }
-    window->handle = NULL;
-    window->is_init = false;
+    app_window_clear(window);
     SDL_Quit();
 }
