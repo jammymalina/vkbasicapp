@@ -1,13 +1,13 @@
 #ifndef STRING_UTILS_H
 #define STRING_UTILS_H
 
-#include <sys/types.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <sys/types.h>
 
-bool string_copy(char* dest, size_t max_dest_length, const char* src);
-bool string_substring_idx(char* dest, const size_t max_dest_length,
-    const char* str, const ssize_t start_index, const ssize_t end_index);
+bool string_copy(const char* src, char* dest, size_t max_dest_length);
+bool string_substring_idx(
+    const char* src, char* dest, const size_t max_dest_length, const ssize_t start_index, const ssize_t end_index);
 
 size_t string_length(const char* str);
 bool string_is_empty(const char* str);
@@ -26,7 +26,6 @@ bool string_equal(const char* str1, const char* str2);
 void string_reverse(char* str, size_t start_index, size_t end_index);
 
 bool string_append(char* dest, size_t max_dest_length, const char* src);
-bool string_add_number_postfix(char* dest, size_t max_dest_length,
-    const char* str, int num, int base);
+bool string_add_number_postfix(char* dest, size_t max_dest_length, const char* str, int num, int base);
 
 #endif

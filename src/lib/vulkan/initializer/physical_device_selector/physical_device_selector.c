@@ -1,5 +1,6 @@
 #include "./physical_device_selector.h"
 
+#include <stddef.h>
 #include <stdint.h>
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_core.h>
@@ -13,7 +14,7 @@ static bool physical_device_add_extension(PhysicalDevice* device, const char* ex
     if (device->extension_count >= PHYSICAL_DEVICE_MAX_EXTENSIONS) {
         return false;
     }
-    device->extensions[device->extension_count] = extension_name;
+    string_copy(extension_name, device->extensions[device->extension_count], VK_MAX_EXTENSION_NAME_SIZE);
     device->extension_count += 1;
     return true;
 }
@@ -42,7 +43,11 @@ static PhysicalDeviceError physical_device_load_queue_families(PhysicalDevice* d
     if (count > PHYSICAL_DEVICE_MAX_QUEUE_FAMILIES) {
         return QUEUE_FAMILY_COUNT_TOO_LARGE;
     }
-    vkGetPhysicalDeviceQueueFamilyProperties(device->handle, &device->queue_family_count, device->queue_families);
+    if (count == 0) {
+        return NO_AVAILABLE_QUEUES;
+    }
+    vkGetPhysicalDeviceQueueFamilyProperties(device->handle, &count, device->queue_families);
+    device->queue_family_count = count;
     return PHYSICAL_DEVICE_NO_ERROR;
 }
 
@@ -53,7 +58,7 @@ static PhysicalDeviceError physical_device_load_extensions(PhysicalDevice* devic
         status, "Unable to enumerate physical device extensions", FAILED_ENUMERATE_PHYSICAL_DEVICE_EXTENSIONS);
     if (extension_count > 0) {
         VkExtensionProperties extensions[extension_count];
-        status = vkEnumerateDeviceExtensionProperties(device->handle, NULL, &extension_count, NULL);
+        status = vkEnumerateDeviceExtensionProperties(device->handle, NULL, &extension_count, extensions);
         ASSERT_VULKAN_STATUS(
             status, "Unable to enumerate physical device extensions", FAILED_ENUMERATE_PHYSICAL_DEVICE_EXTENSIONS);
 
@@ -90,7 +95,7 @@ static PhysicalDeviceError physical_device_selector_load_device_data(
     physical_device_load_device_basic_props(device);
     status = physical_device_load_queue_families(device);
     ASSERT_NO_ERROR(status, status);
-    status = physical_device_load_queue_families(device);
+    status = physical_device_load_extensions(device);
     ASSERT_NO_ERROR(status, status);
     physical_device_selector_load_extended_feature_chain(selector, device);
 
@@ -121,12 +126,13 @@ static bool physical_device_selector_validate_features(
     return true;
 }
 
-static bool physical_device_selector_validate_extensions(const char* const required_extensions[],
-    uint32_t required_extension_count, const char* const extensions[], uint32_t extension_count) {
+static bool physical_device_selector_validate_extensions(
+    const char* required_extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS], uint32_t required_extension_count,
+    const PhysicalDevice* device) {
     uint32_t match_count = 0;
     for (uint32_t i = 0; i < required_extension_count; i++) {
-        for (uint32_t j = 0; j < extension_count; j++) {
-            if (string_equal(required_extensions[i], extensions[j])) {
+        for (uint32_t j = 0; j < device->extension_count; j++) {
+            if (string_equal(required_extensions[i], device->extensions[j])) {
                 match_count++;
             }
         }
@@ -151,8 +157,10 @@ static Rating physical_device_selector_rate_device(PhysicalDeviceSelector* selec
     }
 
     // Check device type
-    if (!selector->allow_any_type &&
-        device->properties.deviceType != preferred_device_type_to_vulkan_type(selector->prefered_device_type)) {
+    if (device->properties.deviceType != preferred_device_type_to_vulkan_type(selector->prefered_device_type)) {
+        if (!selector->allow_any_type) {
+            return LOW_RATING;
+        }
         rate = MEDIUM_RATING;
     }
 
@@ -189,25 +197,28 @@ static Rating physical_device_selector_rate_device(PhysicalDeviceSelector* selec
     }
 
     // Check extensions
-    if (physical_device_selector_validate_extensions(selector->required_extensions, selector->required_extension_count,
-            device->extensions, device->extension_count)) {
+    if (!physical_device_selector_validate_extensions(
+            selector->required_extensions, selector->required_extension_count, device)) {
         return LOW_RATING;
     }
-    if (physical_device_selector_validate_extensions(selector->desired_extensions, selector->desired_extension_count,
-            device->extensions, device->extension_count)) {
+    if (!physical_device_selector_validate_extensions(
+            selector->desired_extensions, selector->desired_extension_count, device)) {
         rate = MEDIUM_RATING;
     }
 
     // Check features
-    if (physical_device_selector_validate_features(&selector->required_features, &device->features)) {
-        return LOW_RATING;
-    }
-    if (physical_device_selector_validate_features(&selector->desired_features, &device->features)) {
-        rate = MEDIUM_RATING;
-    }
+    if (selector->enabled_experimental_feature_validation) {
+        if (!physical_device_selector_validate_features(&selector->required_features, &device->features)) {
+            return LOW_RATING;
+        }
+        if (!physical_device_selector_validate_features(&selector->desired_features, &device->features)) {
+            rate = MEDIUM_RATING;
+        }
 
-    if (!physical_device_feature_items_compare(&selector->extended_features_chain, &device->extended_features_chain)) {
-        return LOW_RATING;
+        if (!physical_device_feature_items_compare(
+                &selector->extended_features_chain, &device->extended_features_chain)) {
+            return LOW_RATING;
+        }
     }
 
     // Check memory
@@ -238,8 +249,6 @@ static void physical_device_selector_finalize_device(
     dst->features = selector->required_features;
 
     physical_device_feature_items_copy(&selector->extended_features_chain, &dst->extended_features_chain, false);
-
-    bool portability_ext_available = false;
 }
 
 PhysicalDeviceError physical_device_selector_select(PhysicalDeviceSelector* selector, PhysicalDevice* device) {
@@ -320,9 +329,10 @@ bool physical_device_selector_add_desired_extension(PhysicalDeviceSelector* sele
     return true;
 }
 
-bool physical_device_selector_add_extended_required_features(
-    PhysicalDeviceSelector* selector, void* features, size_t features_byte_size) {
-    return physical_device_feature_items_add(&selector->extended_features_chain, features, features_byte_size);
+bool physical_device_selector_add_extended_required_features_with_offset(
+    PhysicalDeviceSelector* selector, void* features, size_t features_byte_size, size_t features_next_byte_offset) {
+    return physical_device_feature_items_add(
+        &selector->extended_features_chain, features, features_byte_size, features_next_byte_offset);
 }
 
 void physical_device_selector_destroy(PhysicalDeviceSelector* selector) {

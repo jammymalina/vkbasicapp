@@ -4,15 +4,14 @@
 
 size_t string_length(const char* str) {
     size_t i;
-    for (i = 0; str[i] != '\0'; ++i);
+    for (i = 0; str[i] != '\0'; ++i)
+        ;
     return i;
 }
 
-bool string_is_empty(const char* str) {
-    return str[0] == '\0';
-}
+bool string_is_empty(const char* str) { return str[0] == '\0'; }
 
-bool string_copy(char* dest, size_t max_dest_length, const char* src) {
+bool string_copy(const char* src, char* dest, size_t max_dest_length) {
     if (max_dest_length == 0) {
         return false;
     }
@@ -40,10 +39,9 @@ static inline ssize_t string_transform_idx(const char* str, ssize_t idx) {
     return result_idx <= str_len ? result_idx : -1;
 }
 
-bool string_substring_idx(char* dest, const size_t max_dest_length,
-    const char* str, const ssize_t start_index, const ssize_t end_index)
-{
-    string_copy(dest, max_dest_length, "");
+bool string_substring_idx(
+    const char* str, char* dest, const size_t max_dest_length, const ssize_t start_index, const ssize_t end_index) {
+    string_copy("", dest, max_dest_length);
     ssize_t start_idx = string_transform_idx(str, start_index);
     ssize_t end_idx = string_transform_idx(str, end_index);
 
@@ -63,9 +61,7 @@ bool string_substring_idx(char* dest, const size_t max_dest_length,
     return true;
 }
 
-ssize_t string_index_of(const char* str, char c) {
-    return string_index_of_nth(str, c, 1);
-}
+ssize_t string_index_of(const char* str, char c) { return string_index_of_nth(str, c, 1); }
 
 ssize_t string_index_of_nth(const char* str, char c, size_t n) {
     size_t occurence_count = 0;
@@ -80,9 +76,7 @@ ssize_t string_index_of_nth(const char* str, char c, size_t n) {
     return -1;
 }
 
-ssize_t string_last_index_of(const char* str, char c) {
-    return string_last_index_of_nth(str, c, 1);
-}
+ssize_t string_last_index_of(const char* str, char c) { return string_last_index_of_nth(str, c, 1); }
 
 ssize_t string_last_index_of_nth(const char* str, char c, size_t n) {
     size_t occurence_count = 0;
@@ -99,14 +93,15 @@ ssize_t string_last_index_of_nth(const char* str, char c, size_t n) {
 
 bool string_equal(const char* str1, const char* str2) {
     size_t i;
-    for (i = 0; str1[i] == str2[i] && str1[i] != '\0' && str2[i] != '\0'; ++i);
+    for (i = 0; str1[i] == str2[i] && str1[i] != '\0' && str2[i] != '\0'; ++i)
+        ;
     return str1[i] == str2[i];
 }
 
 bool string_starts_with(const char* str, const char* substr) {
     size_t i;
-    for (i = 0; str[i] == substr[i] && str[i] != '\0' && substr[i] != '\0';
-        ++i);
+    for (i = 0; str[i] == substr[i] && str[i] != '\0' && substr[i] != '\0'; ++i)
+        ;
     return str[i] == substr[i] || substr[i] == '\0';
 }
 
@@ -139,7 +134,8 @@ bool string_append(char* dest, size_t max_dest_length, const char* src) {
     }
 
     size_t i, j;
-    for (i = 0; dest[i] != '\0' && i < max_dest_length - 1; ++i);
+    for (i = 0; dest[i] != '\0' && i < max_dest_length - 1; ++i)
+        ;
 
     for (j = 0; src[j] != '\0' && i < max_dest_length - 1; ++j, ++i) {
         dest[i] = src[j];
@@ -159,9 +155,7 @@ void string_reverse(char* str, size_t start_index, size_t end_index) {
     }
 }
 
-bool string_add_number_postfix(char* dest, size_t max_dest_length,
-    const char* str, int num, int base)
-{
+bool string_add_number_postfix(char* dest, size_t max_dest_length, const char* str, int num, int base) {
     if (max_dest_length == 0) {
         return false;
     }
@@ -188,7 +182,7 @@ bool string_add_number_postfix(char* dest, size_t max_dest_length,
     size_t start_index = i;
     while (num != 0 && i < max_dest_length - 1) {
         div_t d = div(num, base);
-        dest[i] = (d.rem > 9)? (d.rem - 10) + 'a' : d.rem + '0';
+        dest[i] = (d.rem > 9) ? (d.rem - 10) + 'a' : d.rem + '0';
         num = d.quot;
         ++i;
     }

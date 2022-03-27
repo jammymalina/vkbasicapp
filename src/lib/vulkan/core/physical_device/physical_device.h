@@ -9,13 +9,14 @@
 #include "../../../core/rating.h"
 #include "../functions.h"
 
-#define PHYSICAL_DEVICE_MAX_EXTENSIONS 64
+#define PHYSICAL_DEVICE_MAX_EXTENSIONS 256
 #define PHYSICAL_DEVICE_MAX_QUEUE_FAMILIES 32
 #define PHYSICAL_DEVICE_MAX_EXTENDED_FEATURES 8
 
 typedef struct PhysicalDeviceFeatureItem {
     void* features;
     size_t features_byte_size;
+    size_t features_next_byte_offset;
 } PhysicalDeviceFeatureItem;
 
 typedef struct PhysicalDeviceFeatureItems {
@@ -28,17 +29,22 @@ static inline void physical_device_feature_items_clear(PhysicalDeviceFeatureItem
     for (uint32_t i = 0; i < PHYSICAL_DEVICE_MAX_EXTENDED_FEATURES; i++) {
         items->items[i].features = NULL;
         items->items[i].features_byte_size = 0;
+        items->items[i].features_next_byte_offset = 0;
     }
 }
 
 static inline void* physical_device_feature_items_get_head(PhysicalDeviceFeatureItems* items) {
+    if (items->length == 0) {
+        return NULL;
+    }
     return items->items[0].features;
 }
 
 void physical_device_feature_items_copy(
     const PhysicalDeviceFeatureItems* src, PhysicalDeviceFeatureItems* dst, bool clear_features);
 
-bool physical_device_feature_items_add(PhysicalDeviceFeatureItems* items, void* features, size_t features_byte_size);
+bool physical_device_feature_items_add(
+    PhysicalDeviceFeatureItems* items, void* features, size_t features_byte_size, size_t features_next_byte_offset);
 bool physical_device_feature_items_compare(
     const PhysicalDeviceFeatureItems* required_features, const PhysicalDeviceFeatureItems* device_features);
 void physical_device_feature_items_destroy(PhysicalDeviceFeatureItems* items);
@@ -57,7 +63,7 @@ typedef struct PhysicalDevice {
     VkQueueFamilyProperties queue_families[PHYSICAL_DEVICE_MAX_QUEUE_FAMILIES];
     uint32_t queue_family_count;
 
-    const char* extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS];
+    char extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS][VK_MAX_EXTENSION_NAME_SIZE];
     uint32_t extension_count;
 
     Rating rating;

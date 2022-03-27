@@ -2,6 +2,7 @@
 #define PHYSICAL_DEVICE_SELECTOR_H
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <vulkan/vulkan.h>
 
 #include "../../core/errors.h"
@@ -47,6 +48,7 @@ typedef struct PhysicalDeviceSelector {
     VkPhysicalDeviceFeatures required_features;
     VkPhysicalDeviceFeatures desired_features;
     PhysicalDeviceFeatureItems extended_features_chain;
+    bool enabled_experimental_feature_validation;
 
     const char* required_extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS];
     uint32_t required_extension_count;
@@ -77,6 +79,7 @@ static inline void physical_device_selector_clear(PhysicalDeviceSelector* select
 
     selector->required_features = (VkPhysicalDeviceFeatures){0};
     selector->desired_features = (VkPhysicalDeviceFeatures){0};
+    selector->enabled_experimental_feature_validation = false;
     physical_device_feature_items_clear(&selector->extended_features_chain);
 };
 
@@ -84,8 +87,13 @@ PhysicalDeviceError physical_device_selector_select(PhysicalDeviceSelector* sele
 
 bool physical_device_selector_add_required_extension(PhysicalDeviceSelector* selector, const char* extension_name);
 bool physical_device_selector_add_desired_extension(PhysicalDeviceSelector* selector, const char* extension_name);
-bool physical_device_selector_add_extended_required_features(
-    PhysicalDeviceSelector* selector, void* features, size_t features_byte_size);
+
+bool physical_device_selector_add_extended_required_features_with_offset(
+    PhysicalDeviceSelector* selector, void* features, size_t features_byte_size, size_t features_next_byte_offset);
+
+#define physical_device_selector_add_extended_required_features(selector, features)                                    \
+    physical_device_selector_add_extended_required_features_with_offset(                                               \
+        selector, &features, sizeof(__typeof__(features)), offsetof(__typeof__(features), pNext))
 
 void physical_device_selector_destroy(PhysicalDeviceSelector* selector);
 
