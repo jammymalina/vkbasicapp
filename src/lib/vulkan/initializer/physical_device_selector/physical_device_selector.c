@@ -23,7 +23,6 @@ static PhysicalDeviceError physical_device_selector_validate(const PhysicalDevic
 
 static void physical_device_load_device_basic_props(PhysicalDevice* device) {
     vkGetPhysicalDeviceProperties(device->handle, &device->properties);
-    vkGetPhysicalDeviceFeatures(device->handle, &device->features);
     vkGetPhysicalDeviceMemoryProperties(device->handle, &device->memory_properties);
     string_copy(device->properties.deviceName, device->name, VK_MAX_PHYSICAL_DEVICE_NAME_SIZE);
 }
@@ -73,10 +72,9 @@ static void physical_device_selector_load_extended_feature_chain(
     }
     physical_device_feature_items_copy(&selector->extended_features_chain, &device->extended_features_chain, true);
 
-    VkPhysicalDeviceFeatures2 local_features = (VkPhysicalDeviceFeatures2){0};
-    local_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    local_features.pNext = physical_device_feature_items_get_head(&device->extended_features_chain);
-    vkGetPhysicalDeviceFeatures2(device->handle, &local_features);
+    device->features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    device->features.pNext = physical_device_feature_items_get_head(&device->extended_features_chain);
+    vkGetPhysicalDeviceFeatures2(device->handle, &device->features);
 }
 
 static PhysicalDeviceError physical_device_selector_load_device_data(
@@ -200,10 +198,10 @@ static Rating physical_device_selector_rate_device(PhysicalDeviceSelector* selec
 
     // Check features
     if (selector->enabled_experimental_feature_validation) {
-        if (!physical_device_selector_validate_features(&selector->required_features, &device->features)) {
+        if (!physical_device_selector_validate_features(&selector->required_features, &device->features.features)) {
             return LOW_RATING;
         }
-        if (!physical_device_selector_validate_features(&selector->desired_features, &device->features)) {
+        if (!physical_device_selector_validate_features(&selector->desired_features, &device->features.features)) {
             rate = MEDIUM_RATING;
         }
 
@@ -238,10 +236,11 @@ static void physical_device_selector_finalize_device(
     PhysicalDeviceSelector* selector, const PhysicalDevice* src, PhysicalDevice* dst) {
     string_copy(src->name, dst->name, VK_MAX_PHYSICAL_DEVICE_NAME_SIZE);
     dst->handle = src->handle;
+    dst->instance = selector->instance;
     dst->rating = src->rating;
     dst->properties = src->properties;
     dst->memory_properties = src->memory_properties;
-    dst->features = selector->required_features;
+    dst->features.features = selector->required_features;
     physical_device_feature_items_copy(&selector->extended_features_chain, &dst->extended_features_chain, false);
 
     for (uint32_t i = 0; i < src->queue_family_count; i++) {

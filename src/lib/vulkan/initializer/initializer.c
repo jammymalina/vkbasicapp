@@ -23,7 +23,6 @@ void vulkan_state_init(VulkanState* state, void* window_handle) {
     if (!system_info_init(&state->system)) {
         return;
     }
-    system_info_display(&state->system);
 
     InstanceBuilder instance_builder = {0};
     instance_builder_clear(&instance_builder);

@@ -9,6 +9,7 @@
 #include "../../../core/rating.h"
 #include "../../../core/string/string.h"
 #include "../functions.h"
+#include "../instance.h"
 
 #define PHYSICAL_DEVICE_MAX_EXTENSIONS 256
 #define PHYSICAL_DEVICE_MAX_QUEUE_FAMILIES 32
@@ -34,7 +35,7 @@ static inline void physical_device_feature_items_clear(PhysicalDeviceFeatureItem
     }
 }
 
-static inline void* physical_device_feature_items_get_head(PhysicalDeviceFeatureItems* items) {
+static inline void* physical_device_feature_items_get_head(const PhysicalDeviceFeatureItems* items) {
     if (items->length == 0) {
         return NULL;
     }
@@ -52,10 +53,11 @@ void physical_device_feature_items_destroy(PhysicalDeviceFeatureItems* items);
 
 typedef struct PhysicalDevice {
     VkPhysicalDevice handle;
+    const Instance* instance;
 
     char name[VK_MAX_PHYSICAL_DEVICE_NAME_SIZE];
 
-    VkPhysicalDeviceFeatures features;
+    VkPhysicalDeviceFeatures2 features;
     VkPhysicalDeviceProperties properties;
     VkPhysicalDeviceMemoryProperties memory_properties;
     PhysicalDeviceFeatureItems extended_features_chain;
@@ -71,10 +73,11 @@ typedef struct PhysicalDevice {
 
 static inline void physical_device_clear(PhysicalDevice* device) {
     device->handle = VK_NULL_HANDLE;
+    device->instance = NULL;
     device->queue_family_count = 0;
     device->extension_count = 0;
     device->rating = LOW_RATING;
-    device->features = (VkPhysicalDeviceFeatures){0};
+    device->features = (VkPhysicalDeviceFeatures2){0};
     device->properties = (VkPhysicalDeviceProperties){0};
     device->memory_properties = (VkPhysicalDeviceMemoryProperties){0};
     string_copy("", device->name, VK_MAX_PHYSICAL_DEVICE_NAME_SIZE);

@@ -136,4 +136,24 @@ static inline const char* physical_device_error_to_string(PhysicalDeviceError er
     }
 }
 
+typedef enum DeviceError {
+    DEVICE_NO_ERROR,
+    FAILED_CREATE_DEVICE,
+    NO_PHYSICAL_DEVICE_PROVIDED,
+    TOO_MANY_QUEUE_DESCRIPTORS_REQUESTED,
+} DeviceError;
+
+static inline const char* device_error_to_string(DeviceError err) {
+    switch (err) {
+        case FAILED_CREATE_DEVICE:
+            return "FAILED_CREATE_DEVICE";
+        case NO_PHYSICAL_DEVICE_PROVIDED:
+            return "NO_PHYSICAL_DEVICE_PROVIDED";
+        case TOO_MANY_QUEUE_DESCRIPTORS_REQUESTED:
+            return "TOO_MANY_QUEUE_DESCRIPTORS_REQUESTED";
+        default:
+            return "Uknown";
+    }
+}
+
 #endif

@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#include "../core/device/device.h"
 #include "../core/instance.h"
 #include "../core/library.h"
 #include "../core/physical_device/physical_device.h"
@@ -13,6 +14,7 @@ typedef struct VulkanState {
     SystemInfo system;
     Instance instance;
     PhysicalDevice physical_device;
+    Device device;
     bool is_init;
 } VulkanState;
 
@@ -21,6 +23,7 @@ static inline void vulkan_state_clear(VulkanState* state) {
     system_info_clear(&state->system);
     instance_clear(&state->instance);
     physical_device_destroy(&state->physical_device);
+    device_clear(&state->device);
     state->is_init = false;
 }
 

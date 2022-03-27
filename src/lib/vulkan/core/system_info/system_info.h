@@ -22,18 +22,6 @@ static inline void system_info_clear(SystemInfo* info) {
     info->available_extension_count = 0;
 }
 
-static inline void system_info_display(const SystemInfo* info) {
-    log_info("Available layers: %d", info->available_layer_count);
-    for (uint32_t i = 0; i < info->available_layer_count; i++) {
-        log_info("  %s", info->available_layers[i].layerName);
-    }
-
-    log_info("Available extensions: %d", info->available_extension_count);
-    for (uint32_t i = 0; i < info->available_extension_count; i++) {
-        log_info("  %s", info->available_extensions[i].extensionName);
-    }
-}
-
 bool system_info_init(SystemInfo* info);
 bool system_info_is_layer_available(const SystemInfo* info, const char* layer_name);
 bool system_info_is_extension_available(const SystemInfo* info, const char* extension_name);
