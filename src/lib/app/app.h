@@ -18,7 +18,7 @@ static inline void app_clear(App* app) {
 
 void app_init(App* app);
 bool app_is_init(const App* app);
-void app_start(App* app);
+int app_start(App* app);
 void app_destroy(App* app);
 
 #endif

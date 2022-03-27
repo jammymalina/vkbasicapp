@@ -16,9 +16,12 @@ void app_init(App* app) {
 
 bool app_is_init(const App* app) { return app->window.is_init && app->state.is_init; }
 
-void app_start(App* app) {
-    bool is_running = app_is_init(app);
+int app_start(App* app) {
+    if (!app_is_init(app)) {
+        return 1;
+    }
 
+    bool is_running = true;
     while (is_running) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -34,6 +37,8 @@ void app_start(App* app) {
             }
         }
     }
+
+    return 0;
 }
 
 void app_destroy(App* app) {

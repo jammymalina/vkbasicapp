@@ -1,5 +1,7 @@
 #include "./initializer.h"
 
+#include <vulkan/vulkan.h>
+
 #include "../core/errors.h"
 #include "../core/functions.h"
 #include "../core/instance.h"
@@ -40,6 +42,15 @@ void vulkan_state_init(VulkanState* state, void* window_handle) {
     PhysicalDeviceSelector device_selector = {0};
     physical_device_selector_clear(&device_selector);
     device_selector.instance = &state->instance;
+
+    // enable dynamic rendering
+    VkPhysicalDeviceVulkan13Features features_13 = {0};
+    features_13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+    features_13.dynamicRendering = VK_TRUE;
+
+    physical_device_selector_add_extended_required_features(
+        &device_selector, &features_13, sizeof(VkPhysicalDeviceVulkan13Features));
+
     ASSERT_NO_ERROR_LOG(physical_device_selector_select(&device_selector, &state->physical_device), PhysicalDeviceError,
         physical_device_error_to_string);
 

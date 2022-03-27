@@ -10,9 +10,27 @@
 
 typedef enum PreferredDeviceType { OTHER_DEVICE, INTEGRATED_GPU, DISCRETE_GPU, VIRTUAL_GPU, CPU } PreferredDeviceType;
 
+static inline VkPhysicalDeviceType preferred_device_type_to_vulkan_type(PreferredDeviceType type) {
+    switch (type) {
+        case OTHER_DEVICE:
+            return VK_PHYSICAL_DEVICE_TYPE_OTHER;
+        case INTEGRATED_GPU:
+            return VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU;
+        case DISCRETE_GPU:
+            return VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+        case VIRTUAL_GPU:
+            return VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU;
+        case CPU:
+            return VK_PHYSICAL_DEVICE_TYPE_CPU;
+        default:
+            return VK_PHYSICAL_DEVICE_TYPE_OTHER;
+    }
+}
+
 typedef struct PhysicalDeviceSelector {
     const Instance* instance;
 
+    const char* device_name;
     PreferredDeviceType prefered_device_type;
     bool allow_any_type;
 
@@ -27,7 +45,7 @@ typedef struct PhysicalDeviceSelector {
     VkDeviceSize desired_mem_size;
 
     VkPhysicalDeviceFeatures required_features;
-    VkPhysicalDeviceFeatures2 required_features2;
+    VkPhysicalDeviceFeatures desired_features;
     PhysicalDeviceFeatureItems extended_features_chain;
 
     const char* required_extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS];
@@ -43,6 +61,7 @@ static inline void physical_device_selector_clear(PhysicalDeviceSelector* select
     selector->instance = NULL;
     selector->prefered_device_type = DISCRETE_GPU;
     selector->allow_any_type = true;
+    selector->device_name = "";
     selector->desired_api_version = VK_VERSION_1_3;
     selector->require_present = true;
     selector->require_dedicated_transfer_queue = false;
@@ -55,18 +74,19 @@ static inline void physical_device_selector_clear(PhysicalDeviceSelector* select
     selector->desired_extension_count = 0;
     selector->use_first_gpu_unconditionally = false;
     selector->enable_portability_subset = false;
+
+    selector->required_features = (VkPhysicalDeviceFeatures){0};
+    selector->desired_features = (VkPhysicalDeviceFeatures){0};
+    physical_device_feature_items_clear(&selector->extended_features_chain);
 };
 
 PhysicalDeviceError physical_device_selector_select(PhysicalDeviceSelector* selector, PhysicalDevice* device);
 
 bool physical_device_selector_add_required_extension(PhysicalDeviceSelector* selector, const char* extension_name);
 bool physical_device_selector_add_desired_extension(PhysicalDeviceSelector* selector, const char* extension_name);
+bool physical_device_selector_add_extended_required_features(
+    PhysicalDeviceSelector* selector, void* features, size_t features_byte_size);
 
-void physical_device_selector_add_extended_required_features_11(
-    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan11Features features);
-void physical_device_selector_add_extended_required_features_12(
-    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan12Features features);
-void physical_device_selector_add_extended_required_features_13(
-    PhysicalDeviceSelector* selector, VkPhysicalDeviceVulkan13Features features);
+void physical_device_selector_destroy(PhysicalDeviceSelector* selector);
 
 #endif

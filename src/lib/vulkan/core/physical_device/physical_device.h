@@ -11,33 +11,37 @@
 
 #define PHYSICAL_DEVICE_MAX_EXTENSIONS 64
 #define PHYSICAL_DEVICE_MAX_QUEUE_FAMILIES 32
-
-typedef enum PhysicalDeviceFeatureType {
-    PHYSICAL_DEVICE_VULKAN_11_FEATURE_TYPE,
-    PHYSICAL_DEVICE_VULKAN_12_FEATURE_TYPE,
-    PHYSICAL_DEVICE_VULKAN_13_FEATURE_TYPE,
-    PHYSICAL_DEVICE_FEATURE_TYPE_COUNT,
-} PhysicalDeviceFeatureType;
+#define PHYSICAL_DEVICE_MAX_EXTENDED_FEATURES 8
 
 typedef struct PhysicalDeviceFeatureItem {
-    PhysicalDeviceFeatureType feature_type;
-    union {
-        VkPhysicalDeviceVulkan11Features features_11;
-        VkPhysicalDeviceVulkan12Features features_12;
-        VkPhysicalDeviceVulkan13Features features_13;
-    };
+    void* features;
+    size_t features_byte_size;
 } PhysicalDeviceFeatureItem;
 
 typedef struct PhysicalDeviceFeatureItems {
-    PhysicalDeviceFeatureItem items[PHYSICAL_DEVICE_FEATURE_TYPE_COUNT];
+    PhysicalDeviceFeatureItem items[PHYSICAL_DEVICE_MAX_EXTENDED_FEATURES];
+    uint32_t length;
 } PhysicalDeviceFeatureItems;
 
-void physical_device_feature_items_clear(PhysicalDeviceFeatureItems* items);
-void physical_device_feature_items_create_chain(PhysicalDeviceFeatureItems* items);
+static inline void physical_device_feature_items_clear(PhysicalDeviceFeatureItems* items) {
+    items->length = 0;
+    for (uint32_t i = 0; i < PHYSICAL_DEVICE_MAX_EXTENDED_FEATURES; i++) {
+        items->items[i].features = NULL;
+        items->items[i].features_byte_size = 0;
+    }
+}
 
 static inline void* physical_device_feature_items_get_head(PhysicalDeviceFeatureItems* items) {
-    return &items->items[0].features_11;
+    return items->items[0].features;
 }
+
+void physical_device_feature_items_copy(
+    const PhysicalDeviceFeatureItems* src, PhysicalDeviceFeatureItems* dst, bool clear_features);
+
+bool physical_device_feature_items_add(PhysicalDeviceFeatureItems* items, void* features, size_t features_byte_size);
+bool physical_device_feature_items_compare(
+    const PhysicalDeviceFeatureItems* required_features, const PhysicalDeviceFeatureItems* device_features);
+void physical_device_feature_items_destroy(PhysicalDeviceFeatureItems* items);
 
 typedef struct PhysicalDevice {
     VkPhysicalDevice handle;
@@ -65,7 +69,13 @@ static inline void physical_device_clear(PhysicalDevice* device) {
     device->queue_family_count = 0;
     device->extension_count = 0;
     device->rating = LOW_RATING;
+    device->features = (VkPhysicalDeviceFeatures){0};
+    device->features2 = (VkPhysicalDeviceFeatures2){0};
+    device->properties = (VkPhysicalDeviceProperties){0};
+    device->memory_properties = (VkPhysicalDeviceMemoryProperties){0};
     physical_device_feature_items_clear(&device->extended_features_chain);
 }
+
+void physical_device_destroy(PhysicalDevice* device);
 
 #endif

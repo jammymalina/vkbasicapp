@@ -64,7 +64,7 @@ static bool system_info_load_extensions(SystemInfo* info) {
 
     if (status != VK_SUCCESS) {
         log_error("Unable to get extensions: %s", vulkan_result_to_string(status));
-        if (extensions) {
+        if (extensions != NULL) {
             mem_free(extensions);
         }
         return false;

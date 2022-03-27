@@ -6,13 +6,9 @@ int main(int argc, char* args[]) {
     app_clear(&app);
     app_init(&app);
 
-    if (!app_is_init(&app)) {
-        return 1;
-    }
-
-    app_start(&app);
+    int error_code = app_start(&app);
 
     app_destroy(&app);
 
-    return 0;
+    return error_code;
 }
