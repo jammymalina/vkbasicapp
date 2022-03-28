@@ -2,20 +2,32 @@
 #define DEVICE_H
 
 #include <vulkan/vulkan.h>
-#include <vulkan/vulkan_core.h>
 
+#include "../functions.h"
 #include "../physical_device/physical_device.h"
 
 typedef struct Device {
     VkDevice handle;
     const PhysicalDevice* physical_device;
+    bool loaded_device_functions;
 } Device;
 
 static inline void device_clear(Device* device) {
     device->handle = VK_NULL_HANDLE;
     device->physical_device = NULL;
+    device->loaded_device_functions = false;
 }
 
-void device_destroy(Device* device);
+static inline bool device_is_init(const Device* device) {
+    return device->loaded_device_functions && device->handle != VK_NULL_HANDLE;
+}
+
+static inline void device_destroy(Device* device) {
+    if (!device_is_init(device)) {
+        return;
+    }
+    vkDestroyDevice(device->handle, NULL);
+    device_clear(device);
+}
 
 #endif

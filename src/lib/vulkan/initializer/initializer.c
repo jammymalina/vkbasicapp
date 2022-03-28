@@ -7,6 +7,7 @@
 #include "../core/functions.h"
 #include "../core/instance.h"
 #include "../core/library.h"
+#include "./device_builder/device_builder.h"
 #include "./function_loader/function_loader.h"
 #include "./instance_builder/instance_builder.h"
 #include "./physical_device_selector/physical_device_selector.h"
@@ -48,17 +49,24 @@ void vulkan_state_init(VulkanState* state, void* window_handle) {
     VkPhysicalDeviceVulkan13Features features_13 = {0};
     features_13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
     features_13.dynamicRendering = VK_TRUE;
-
     physical_device_selector_add_extended_required_features(&device_selector, features_13);
+    physical_device_selector_add_required_extension(&device_selector, "VK_KHR_dynamic_rendering");
 
     PhysicalDeviceError device_status = physical_device_selector_select(&device_selector, &state->physical_device);
     physical_device_selector_destroy(&device_selector);
     ASSERT_NO_ERROR_LOG(device_status, PhysicalDeviceError, physical_device_error_to_string);
 
+    DeviceBuilder device_builder = {0};
+    device_builder_clear(&device_builder);
+    device_builder.physical_device = &state->physical_device;
+
+    device_builder_build(&device_builder, &state->device);
+
     state->is_init = true;
 }
 
 void vulkan_state_destroy(VulkanState* state) {
+    device_destroy(&state->device);
     instance_destroy(&state->instance);
     system_info_destroy(&state->system);
     library_unload(&state->library);

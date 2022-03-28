@@ -3,7 +3,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <vulkan/vulkan.h>
-#include <vulkan/vulkan_core.h>
 
 #include "../../../core/memory/memory.h"
 #include "../../../core/string/string.h"
@@ -155,14 +154,14 @@ static Rating physical_device_selector_rate_device(PhysicalDeviceSelector* selec
     }
 
     // Check queues
-    bool dedicated_compute = queue_utils_get_dedicated_queue_index(device->queue_families, device->queue_family_count,
-                                 VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT) != UINT32_MAX;
-    bool dedicated_transfer = queue_utils_get_dedicated_queue_index(device->queue_families, device->queue_family_count,
-                                  VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT) != UINT32_MAX;
-    bool separate_compute = queue_utils_get_separate_queue_index(device->queue_families, device->queue_family_count,
-                                VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT) != UINT32_MAX;
-    bool separate_transfer = queue_utils_get_separate_queue_index(device->queue_families, device->queue_family_count,
-                                 VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT) != UINT32_MAX;
+    bool dedicated_compute =
+        queue_utils_get_dedicated_queue_index(device, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT) != UINT32_MAX;
+    bool dedicated_transfer =
+        queue_utils_get_dedicated_queue_index(device, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT) != UINT32_MAX;
+    bool separate_compute =
+        queue_utils_get_separate_queue_index(device, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT) != UINT32_MAX;
+    bool separate_transfer =
+        queue_utils_get_separate_queue_index(device, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT) != UINT32_MAX;
     bool present_queue = queue_utils_get_present_queue_index(device, selector->instance) != UINT32_MAX;
 
     if (selector->require_dedicated_compute_queue && !dedicated_compute) return LOW_RATING;

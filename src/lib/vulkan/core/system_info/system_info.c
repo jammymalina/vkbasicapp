@@ -1,7 +1,7 @@
 #include "./system_info.h"
 
 #include <string.h>
-#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan.h>
 
 #include "../../../core/logger/logger.h"
 #include "../../../core/memory/memory.h"

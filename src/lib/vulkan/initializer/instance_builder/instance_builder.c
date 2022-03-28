@@ -1,7 +1,7 @@
 #include "./instance_builder.h"
 
 #include <SDL2/SDL_vulkan.h>
-#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan.h>
 
 #include "../../../core/logger/logger.h"
 #include "../../../core/memory/memory.h"
@@ -151,6 +151,7 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
     if (load_status != FUNCTION_LOADER_NO_ERROR) {
         return FAILED_TO_LOAD_INSTANCE_FUNCTIONS;
     }
+    instance->loaded_instance_functions = true;
 
     status = instance_builder_load_surface(builder, instance);
     ASSERT_NO_ERROR(status, status);

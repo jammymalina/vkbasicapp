@@ -141,6 +141,7 @@ typedef enum DeviceError {
     FAILED_CREATE_DEVICE,
     NO_PHYSICAL_DEVICE_PROVIDED,
     TOO_MANY_QUEUE_DESCRIPTORS_REQUESTED,
+    FAILED_TO_LOAD_DEVICE_FUNCTIONS,
 } DeviceError;
 
 static inline const char* device_error_to_string(DeviceError err) {
@@ -151,6 +152,33 @@ static inline const char* device_error_to_string(DeviceError err) {
             return "NO_PHYSICAL_DEVICE_PROVIDED";
         case TOO_MANY_QUEUE_DESCRIPTORS_REQUESTED:
             return "TOO_MANY_QUEUE_DESCRIPTORS_REQUESTED";
+        case FAILED_TO_LOAD_DEVICE_FUNCTIONS:
+            return "FAILED_TO_LOAD_DEVICE_FUNCTIONS";
+        default:
+            return "Uknown";
+    }
+}
+
+typedef enum SwapchainError {
+    SURFACE_HANDLE_NOT_PROVIDED,
+    FAILED_QUERY_SURFACE_SUPPORT_DETAILS,
+    FAILED_CREATE_SWAPCHAIN,
+    FAILED_GET_SWAPCHAIN_IMAGES,
+    FAILED_CREATE_SWAPCHAIN_IMAGE_VIEWS,
+} SwapchainError;
+
+static inline const char* swapchain_error_to_string(SwapchainError err) {
+    switch (err) {
+        case SURFACE_HANDLE_NOT_PROVIDED:
+            return "SURFACE_HANDLE_NOT_PROVIDED";
+        case FAILED_QUERY_SURFACE_SUPPORT_DETAILS:
+            return "FAILED_QUERY_SURFACE_SUPPORT_DETAILS";
+        case FAILED_CREATE_SWAPCHAIN:
+            return "FAILED_CREATE_SWAPCHAIN";
+        case FAILED_GET_SWAPCHAIN_IMAGES:
+            return "FAILED_GET_SWAPCHAIN_IMAGES";
+        case FAILED_CREATE_SWAPCHAIN_IMAGE_VIEWS:
+            return "FAILED_CREATE_SWAPCHAIN_IMAGE_VIEWS";
         default:
             return "Uknown";
     }
