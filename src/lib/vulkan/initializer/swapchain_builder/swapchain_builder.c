@@ -39,6 +39,9 @@ SwapchainError swapchain_builder_build(SwapchainBuilder* builder, Swapchain* swa
     if (surface_support.capabilities.maxImageCount > 0 && image_count > surface_support.capabilities.maxImageCount) {
         image_count = surface_support.capabilities.maxImageCount;
     }
+    if (image_count > SWAPCHAIN_MAX_IMAGES) {
+        return TOO_MANY_IMAGES_REQUESTED;
+    }
 
     uint32_t image_array_layers = builder->array_layer_count;
     if (surface_support.capabilities.maxImageArrayLayers < builder->array_layer_count) {
@@ -90,6 +93,11 @@ SwapchainError swapchain_builder_build(SwapchainBuilder* builder, Swapchain* swa
     swapchain->image_count = image_count;
     swapchain->image_format = surface_format.format;
     swapchain->extent = extent;
+
+    status = swapchain_load_images(swapchain);
+    ASSERT_NO_ERROR(status, status);
+    status = swapchain_load_image_views(swapchain);
+    ASSERT_NO_ERROR(status, status);
 
     return SWAPCHAIN_NO_ERROR;
 }

@@ -195,6 +195,7 @@ typedef enum SwapchainError {
     FAILED_CREATE_SWAPCHAIN,
     FAILED_GET_SWAPCHAIN_IMAGES,
     FAILED_CREATE_SWAPCHAIN_IMAGE_VIEWS,
+    TOO_MANY_IMAGES_REQUESTED,
 } SwapchainError;
 
 static inline const char* swapchain_error_to_string(SwapchainError err) {
@@ -209,6 +210,8 @@ static inline const char* swapchain_error_to_string(SwapchainError err) {
             return "FAILED_GET_SWAPCHAIN_IMAGES";
         case FAILED_CREATE_SWAPCHAIN_IMAGE_VIEWS:
             return "FAILED_CREATE_SWAPCHAIN_IMAGE_VIEWS";
+        case TOO_MANY_IMAGES_REQUESTED:
+            return "TOO_MANY_IMAGES_REQUESTED";
         default:
             return "Uknown";
     }

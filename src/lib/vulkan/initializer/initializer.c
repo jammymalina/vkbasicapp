@@ -63,13 +63,31 @@ void vulkan_state_init(VulkanState* state, void* window_handle) {
 
     device_builder_build(&device_builder, &state->device);
 
+    SwapchainError swapchain_status = vulkan_state_create_swapchain(state);
+    ASSERT_NO_ERROR_LOG(swapchain_status, SwapchainError, swapchain_error_to_string);
+
+    state->is_init = true;
+}
+
+SwapchainError vulkan_state_create_swapchain(VulkanState* state) {
+    if (!device_is_init(&state->device)) {
+        return NO_DEVICE_PROVIDED_SWAPCHAIN;
+    }
+
+    Swapchain swapchain;
+
     SwapchainBuilder swapchain_builder = {0};
+    swapchain_builder.old_swapchain = state->swapchain.handle;
     swapchain_builder_clear(&swapchain_builder);
     swapchain_builder.device = &state->device;
 
-    swapchain_builder_build(&swapchain_builder, &state->swapchain);
+    SwapchainError status = swapchain_builder_build(&swapchain_builder, &swapchain);
+    ASSERT_NO_ERROR(status, status);
 
-    state->is_init = true;
+    swapchain_destroy(&state->swapchain);
+    swapchain_copy(&swapchain, &state->swapchain);
+
+    return SWAPCHAIN_NO_ERROR;
 }
 
 void vulkan_state_destroy(VulkanState* state) {

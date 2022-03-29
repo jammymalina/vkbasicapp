@@ -58,8 +58,8 @@ static bool instance_builder_load_default_extensions(InstanceBuilder* builder) {
     if (builder->debug_enabled && system_info_has_debug_utils(builder->system)) {
         status &= instance_builder_add_extension(builder, VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
     }
-    return status;
 #endif
+    return status;
 }
 
 static bool instance_builder_check_layers(const InstanceBuilder* builder) {
