@@ -10,13 +10,12 @@ void app_init(App* app) {
     app_window_builder_build(&builder, &app->window);
 
     ContextError context_status = context_init(&app->context, app->window.handle);
-    if (context_status != CONTEXT_NO_ERROR) {
-        return;
-    }
-    RenderingContextError rendering_context_status = rendering_context_init(&app->rendering_context, &app->context);
-    if (rendering_context_status != RENDERING_CONTEXT_NO_ERROR) {
-        return;
-    }
+    ASSERT_NO_ERROR_LOG(context_status, ContextError, context_error_to_string);
+
+    command_context_init(&app->command_context, &app->context);
+
+    RenderingContextError render_ctx_status = rendering_context_init(&app->rendering_context, &app->command_context);
+    ASSERT_NO_ERROR_LOG(render_ctx_status, RenderingContextError, rendering_context_error_to_string);
 
     app->is_init = true;
 }
@@ -50,6 +49,7 @@ int app_start(App* app) {
 
 void app_destroy(App* app) {
     rendering_context_destroy(&app->rendering_context);
+    command_context_destroy(&app->command_context);
     context_destroy(&app->context);
     app_window_destroy(&app->window);
     app_clear(app);

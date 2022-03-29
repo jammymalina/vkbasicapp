@@ -93,6 +93,7 @@ SwapchainError swapchain_builder_build(SwapchainBuilder* builder, Swapchain* swa
     swapchain->image_count = image_count;
     swapchain->image_format = surface_format.format;
     swapchain->extent = extent;
+    swapchain->queue_index = builder->combined_queue;
 
     status = swapchain_load_images(swapchain);
     ASSERT_NO_ERROR(status, status);

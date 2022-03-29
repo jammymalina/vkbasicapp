@@ -234,6 +234,7 @@ static inline const char* context_error_to_string(ContextError err) {
 typedef enum RenderingContextError {
     RENDERING_CONTEXT_NO_ERROR,
     RENDERING_CONTEXT_SWAPCHAIN_ERROR,
+    RENDEERING_CONTEXT_COMMAND_CONTEXT_ERROR,
     RENDERING_CONTEXT_INIT_ERROR,
 } RenderingContextError;
 
@@ -243,6 +244,8 @@ static inline const char* rendering_context_error_to_string(RenderingContextErro
             return "RENDERING_CONTEXT_SWAPCHAIN_ERROR";
         case RENDERING_CONTEXT_INIT_ERROR:
             return "RENDERING_CONTEXT_INIT_ERROR";
+        case RENDEERING_CONTEXT_COMMAND_CONTEXT_ERROR:
+            return "RENDEERING_CONTEXT_COMMAND_CONTEXT_ERROR";
         default:
             return "Uknown";
     }

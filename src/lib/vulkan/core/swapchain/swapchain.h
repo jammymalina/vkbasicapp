@@ -22,6 +22,8 @@ typedef struct Swapchain {
     bool init_images;
     VkImageView image_views[SWAPCHAIN_MAX_IMAGES];
     uint32_t init_image_view_count;
+
+    uint32_t queue_index;
 } Swapchain;
 
 static inline void swapchain_clear(Swapchain* swapchain) {
@@ -33,6 +35,8 @@ static inline void swapchain_clear(Swapchain* swapchain) {
     swapchain->extent = (VkExtent2D){.width = 0, .height = 0};
     swapchain->init_images = false;
     swapchain->init_image_view_count = 0;
+
+    swapchain->queue_index = UINT32_MAX;
 }
 
 bool swapchain_is_init(const Swapchain* swapchain);

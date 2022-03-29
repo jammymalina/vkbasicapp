@@ -7,7 +7,7 @@
 void command_pool_clear(CommandPool* pool) {
     pool->handle = VK_NULL_HANDLE;
     pool->context = NULL;
-    string_copy("", pool->name, COMMAND_POOL_NAME_SIZE);
+    string_copy(COMMAND_POOL_AVAILABLE_KEY, pool->name, COMMAND_POOL_NAME_SIZE);
     pool->queue_family_index = UINT32_MAX;
     pool->primary_buffer_count = 0;
     pool->secondary_buffer_count = 0;
@@ -20,14 +20,10 @@ void command_pool_clear(CommandPool* pool) {
 }
 
 bool command_pool_init(CommandPool* pool, const Context* context, const CommandPoolInitInfo* info) {
-    if (info->primary_buffer_count > COMMAND_POOL_MAX_BUFFERS ||
-        info->secondary_buffer_count > COMMAND_POOL_MAX_BUFFERS) {
-        return false;
-    }
-
     command_pool_clear(pool);
     string_copy(info->name, pool->name, COMMAND_POOL_NAME_SIZE);
     pool->context = context;
+    pool->queue_family_index = info->queue_family_index;
 
     VkCommandPoolCreateFlags flags = 0;
     if (info->transient) {
@@ -44,7 +40,7 @@ bool command_pool_init(CommandPool* pool, const Context* context, const CommandP
         .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
         .pNext = NULL,
         .flags = flags,
-        .queueFamilyIndex = info->queue_family_index,
+        .queueFamilyIndex = pool->queue_family_index,
     };
 
     VkCommandPool handle;
@@ -54,10 +50,10 @@ bool command_pool_init(CommandPool* pool, const Context* context, const CommandP
 
     bool buffer_status = true;
     if (info->primary_buffer_count > 0) {
-        status &= command_pool_add_primary_buffers(pool, info->primary_buffer_count);
+        buffer_status &= command_pool_add_primary_buffers(pool, info->primary_buffer_count);
     }
     if (info->secondary_buffer_count > 0) {
-        status &= command_pool_add_secondary_buffers(pool, info->secondary_buffer_count);
+        buffer_status &= command_pool_add_secondary_buffers(pool, info->secondary_buffer_count);
     }
 
     return buffer_status;
@@ -81,6 +77,20 @@ void command_pool_copy(const CommandPool* src, CommandPool* dst, bool destroy_ds
     for (uint32_t i = 0; i < dst->secondary_buffer_count; i++) {
         dst->secondary_buffers[i] = src->secondary_buffers[i];
     }
+}
+
+VkCommandBuffer command_pool_get_primary_buffer(const CommandPool* pool, uint32_t index) {
+    if (index >= pool->primary_buffer_count) {
+        return VK_NULL_HANDLE;
+    }
+    return pool->primary_buffers[index];
+}
+
+VkCommandBuffer command_pool_get_secondary_buffer(const CommandPool* pool, uint32_t index) {
+    if (index >= pool->secondary_buffer_count) {
+        return VK_NULL_HANDLE;
+    }
+    return pool->secondary_buffers[index];
 }
 
 bool command_pool_add_primary_buffers(CommandPool* pool, uint32_t count) {
@@ -137,11 +147,17 @@ void command_pool_free_buffers(CommandPool* pool) {
     if (pool->secondary_buffer_count > 0) {
         vkFreeCommandBuffers(device, pool->handle, pool->secondary_buffer_count, pool->secondary_buffers);
         pool->secondary_buffer_count = 0;
+        for (uint32_t i = 0; i < COMMAND_POOL_MAX_BUFFERS; i++) {
+            pool->secondary_buffers[i] = VK_NULL_HANDLE;
+        }
     }
 
     if (pool->primary_buffer_count > 0) {
         vkFreeCommandBuffers(device, pool->handle, pool->primary_buffer_count, pool->primary_buffers);
         pool->primary_buffer_count = 0;
+        for (uint32_t i = 0; i < COMMAND_POOL_MAX_BUFFERS; i++) {
+            pool->primary_buffers[i] = VK_NULL_HANDLE;
+        }
     }
 }
 

@@ -1,9 +1,11 @@
 #include "./swapchain.h"
 
+#include <stdint.h>
+
 #include "../functions.h"
 
 bool swapchain_is_init(const Swapchain* swapchain) {
-    return swapchain->device != NULL && swapchain->handle != VK_NULL_HANDLE;
+    return swapchain->device != NULL && swapchain->handle != VK_NULL_HANDLE && swapchain->queue_index != UINT32_MAX;
 }
 
 void swapchain_copy(const Swapchain* src, Swapchain* dst, bool destroy_dst) {
@@ -16,6 +18,7 @@ void swapchain_copy(const Swapchain* src, Swapchain* dst, bool destroy_dst) {
     dst->image_count = src->image_count;
     dst->image_format = src->image_format;
     dst->extent = src->extent;
+    dst->queue_index = src->queue_index;
 
     dst->init_images = src->init_images;
     dst->init_image_view_count = src->init_image_view_count;

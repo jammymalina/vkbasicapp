@@ -13,8 +13,9 @@ bool command_pool_cache_add(CommandPoolCache* cache, const CommandPool* pool) {
         return false;
     }
     for (uint32_t i = 0; i < COMMAND_POOL_CACHE_MAX_POOLS; i++) {
-        if (string_equal(cache->items[i].name, COMMAND_POOL_AVAILABLE)) {
+        if (string_equal(cache->items[i].name, COMMAND_POOL_AVAILABLE_KEY)) {
             command_pool_copy(pool, &cache->items[i], false);
+            return true;
         }
     }
     return false;

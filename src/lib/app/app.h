@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#include "../vulkan/core/command/command_context.h"
 #include "../vulkan/core/context/context.h"
 #include "../vulkan/core/rendering/rendering_context.h"
 #include "../window/app_window.h"
@@ -10,6 +11,7 @@
 typedef struct App {
     AppWindow window;
     Context context;
+    CommandContext command_context;
     RenderingContext rendering_context;
     bool is_init;
 } App;
@@ -17,6 +19,7 @@ typedef struct App {
 static inline void app_clear(App* app) {
     app_window_clear(&app->window);
     context_clear(&app->context);
+    command_context_clear(&app->command_context);
     rendering_context_clear(&app->rendering_context);
     app->is_init = false;
 }
