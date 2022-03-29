@@ -6,8 +6,10 @@ bool swapchain_is_init(const Swapchain* swapchain) {
     return swapchain->device != NULL && swapchain->handle != VK_NULL_HANDLE;
 }
 
-void swapchain_copy(const Swapchain* src, Swapchain* dst) {
-    swapchain_clear(dst);
+void swapchain_copy(const Swapchain* src, Swapchain* dst, bool destroy_dst) {
+    if (destroy_dst) {
+        swapchain_destroy(dst);
+    }
 
     dst->handle = src->handle;
     dst->device = src->device;

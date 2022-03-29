@@ -217,4 +217,35 @@ static inline const char* swapchain_error_to_string(SwapchainError err) {
     }
 }
 
+typedef enum ContextError {
+    CONTEXT_NO_ERROR,
+    CONTEXT_INIT_ERROR,
+} ContextError;
+
+static inline const char* context_error_to_string(ContextError err) {
+    switch (err) {
+        case CONTEXT_INIT_ERROR:
+            return "CONTEXT_INIT_ERROR";
+        default:
+            return "Uknown";
+    }
+}
+
+typedef enum RenderingContextError {
+    RENDERING_CONTEXT_NO_ERROR,
+    RENDERING_CONTEXT_SWAPCHAIN_ERROR,
+    RENDERING_CONTEXT_INIT_ERROR,
+} RenderingContextError;
+
+static inline const char* rendering_context_error_to_string(RenderingContextError err) {
+    switch (err) {
+        case RENDERING_CONTEXT_SWAPCHAIN_ERROR:
+            return "RENDERING_CONTEXT_SWAPCHAIN_ERROR";
+        case RENDERING_CONTEXT_INIT_ERROR:
+            return "RENDERING_CONTEXT_INIT_ERROR";
+        default:
+            return "Uknown";
+    }
+}
+
 #endif

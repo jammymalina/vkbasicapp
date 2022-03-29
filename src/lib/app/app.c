@@ -1,7 +1,5 @@
 #include "./app.h"
 
-#include "../vulkan/initializer/initializer.h"
-
 void app_init(App* app) {
     // TODO: Add ini configuration for the app
     AppWindowBuilder builder = {0};
@@ -11,10 +9,19 @@ void app_init(App* app) {
     builder.title = "Basic app";
     app_window_builder_build(&builder, &app->window);
 
-    vulkan_state_init(&app->state, app->window.handle);
+    ContextError context_status = context_init(&app->context, app->window.handle);
+    if (context_status != CONTEXT_NO_ERROR) {
+        return;
+    }
+    RenderingContextError rendering_context_status = rendering_context_init(&app->rendering_context, &app->context);
+    if (rendering_context_status != RENDERING_CONTEXT_NO_ERROR) {
+        return;
+    }
+
+    app->is_init = true;
 }
 
-bool app_is_init(const App* app) { return app->window.is_init && app->state.is_init; }
+bool app_is_init(const App* app) { return app->is_init; }
 
 int app_start(App* app) {
     if (!app_is_init(app)) {
@@ -42,7 +49,8 @@ int app_start(App* app) {
 }
 
 void app_destroy(App* app) {
-    vulkan_state_destroy(&app->state);
+    rendering_context_destroy(&app->rendering_context);
+    context_destroy(&app->context);
     app_window_destroy(&app->window);
     app_clear(app);
 }

@@ -36,7 +36,7 @@ static inline void swapchain_clear(Swapchain* swapchain) {
 }
 
 bool swapchain_is_init(const Swapchain* swapchain);
-void swapchain_copy(const Swapchain* src, Swapchain* dst);
+void swapchain_copy(const Swapchain* src, Swapchain* dst, bool destroy_dst);
 
 SwapchainError swapchain_load_images(Swapchain* swapchain);
 SwapchainError swapchain_load_image_views(Swapchain* swapchain);

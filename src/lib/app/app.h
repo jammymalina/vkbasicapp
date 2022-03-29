@@ -3,17 +3,22 @@
 
 #include <stdbool.h>
 
-#include "../vulkan/core/state.h"
+#include "../vulkan/core/context/context.h"
+#include "../vulkan/core/rendering/rendering_context.h"
 #include "../window/app_window.h"
 
 typedef struct App {
     AppWindow window;
-    VulkanState state;
+    Context context;
+    RenderingContext rendering_context;
+    bool is_init;
 } App;
 
 static inline void app_clear(App* app) {
     app_window_clear(&app->window);
-    vulkan_state_clear(&app->state);
+    context_clear(&app->context);
+    rendering_context_clear(&app->rendering_context);
+    app->is_init = false;
 }
 
 void app_init(App* app);
