@@ -11,6 +11,7 @@
 #include "./function_loader/function_loader.h"
 #include "./instance_builder/instance_builder.h"
 #include "./physical_device_selector/physical_device_selector.h"
+#include "./swapchain_builder/swapchain_builder.h"
 
 void vulkan_state_init(VulkanState* state, void* window_handle) {
     if (state->is_init) {
@@ -62,10 +63,17 @@ void vulkan_state_init(VulkanState* state, void* window_handle) {
 
     device_builder_build(&device_builder, &state->device);
 
+    SwapchainBuilder swapchain_builder = {0};
+    swapchain_builder_clear(&swapchain_builder);
+    swapchain_builder.device = &state->device;
+
+    swapchain_builder_build(&swapchain_builder, &state->swapchain);
+
     state->is_init = true;
 }
 
 void vulkan_state_destroy(VulkanState* state) {
+    swapchain_destroy(&state->swapchain);
     device_destroy(&state->device);
     instance_destroy(&state->instance);
     system_info_destroy(&state->system);

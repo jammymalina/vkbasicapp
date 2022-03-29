@@ -5,4 +5,7 @@
 #define VALUE_TO_STRING(val) STR(val)
 #define CONCAT(arg1, arg2) arg1##arg2
 
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+
 #endif

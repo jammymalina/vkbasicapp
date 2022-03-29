@@ -136,6 +136,35 @@ static inline const char* physical_device_error_to_string(PhysicalDeviceError er
     }
 }
 
+typedef enum SurfaceSupportError {
+    SURFACE_SUPPORT_NO_ERROR,
+    SURFACE_HANDLE_NULL,
+    FAILED_GET_SURFACE_CAPABILITIES,
+    FAILED_ENUMERATE_SURFACE_FORMATS,
+    FAILED_ENUMERATE_PRESENT_MODES,
+    TOO_MANY_SURFACE_FORMATS_REQUESTED,
+    TOO_MANY_SURFACE_PRESENT_MODES_REQUESTED,
+} SurfaceSupportError;
+
+static inline const char* surface_support_error_to_string(SurfaceSupportError err) {
+    switch (err) {
+        case SURFACE_HANDLE_NULL:
+            return "SURFACE_HANDLE_NULL";
+        case FAILED_GET_SURFACE_CAPABILITIES:
+            return "FAILED_GET_SURFACE_CAPABILITIES";
+        case FAILED_ENUMERATE_SURFACE_FORMATS:
+            return "FAILED_ENUMERATE_SURFACE_FORMATS";
+        case FAILED_ENUMERATE_PRESENT_MODES:
+            return "FAILED_ENUMERATE_PRESENT_MODES";
+        case TOO_MANY_SURFACE_FORMATS_REQUESTED:
+            return "TOO_MANY_SURFACE_FORMATS_REQUESTED";
+        case TOO_MANY_SURFACE_PRESENT_MODES_REQUESTED:
+            return "TOO_MANY_SURFACE_PRESENT_MODES_REQUESTED";
+        default:
+            return "Uknown";
+    }
+}
+
 typedef enum DeviceError {
     DEVICE_NO_ERROR,
     FAILED_CREATE_DEVICE,
@@ -160,7 +189,8 @@ static inline const char* device_error_to_string(DeviceError err) {
 }
 
 typedef enum SwapchainError {
-    SURFACE_HANDLE_NOT_PROVIDED,
+    SWAPCHAIN_NO_ERROR,
+    NO_DEVICE_PROVIDED_SWAPCHAIN,
     FAILED_QUERY_SURFACE_SUPPORT_DETAILS,
     FAILED_CREATE_SWAPCHAIN,
     FAILED_GET_SWAPCHAIN_IMAGES,
@@ -169,8 +199,8 @@ typedef enum SwapchainError {
 
 static inline const char* swapchain_error_to_string(SwapchainError err) {
     switch (err) {
-        case SURFACE_HANDLE_NOT_PROVIDED:
-            return "SURFACE_HANDLE_NOT_PROVIDED";
+        case NO_DEVICE_PROVIDED_SWAPCHAIN:
+            return "NO_DEVICE_PROVIDED_SWAPCHAIN";
         case FAILED_QUERY_SURFACE_SUPPORT_DETAILS:
             return "FAILED_QUERY_SURFACE_SUPPORT_DETAILS";
         case FAILED_CREATE_SWAPCHAIN:
