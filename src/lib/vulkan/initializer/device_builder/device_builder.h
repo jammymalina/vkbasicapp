@@ -10,14 +10,12 @@
 #include "../../core/physical_device/physical_device.h"
 #include "../../core/queue/queue.h"
 
-#define DEVICE_BUILDER_QUEUE_MAX_DESCRIPTORS 32
-
 typedef struct DeviceBuilder {
     const PhysicalDevice* physical_device;
 
     VkDeviceCreateFlags flags;
 
-    QueueDescriptor custom_queue_descriptors[DEVICE_BUILDER_QUEUE_MAX_DESCRIPTORS];
+    QueueDescriptor custom_queue_descriptors[DEVICE_MAX_QUEUE_DESCRIPTORS];
     uint32_t custom_queue_descriptor_count;
 } DeviceBuilder;
 

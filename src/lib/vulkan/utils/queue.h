@@ -30,6 +30,6 @@ uint32_t queue_utils_get_separate_queue_index(
  * Finds the first queue which supports presenting and graphics. Returns UINT32_MAX
  * if none is found
  */
-uint32_t queue_utils_get_present_queue_index(const PhysicalDevice* device, const Instance* instance);
+uint32_t queue_utils_get_present_queue_index(const PhysicalDevice* device);
 
 #endif

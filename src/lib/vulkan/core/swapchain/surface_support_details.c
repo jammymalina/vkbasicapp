@@ -14,13 +14,13 @@ SurfaceSupportError surface_support_details_load(SurfaceSupportDetails* details,
     }
 
     VkSurfaceCapabilitiesKHR capabilities;
-    ASSERT_VULKAN_STATUS(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device->handle, surface, &capabilities),
+    ASSERT_VK_LOG(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device->handle, surface, &capabilities),
         "Unable to load surface capabilities", FAILED_GET_SURFACE_CAPABILITIES);
 
     uint32_t format_count, present_mode_count;
-    ASSERT_VULKAN_STATUS(vkGetPhysicalDeviceSurfaceFormatsKHR(device->handle, surface, &format_count, NULL),
+    ASSERT_VK_LOG(vkGetPhysicalDeviceSurfaceFormatsKHR(device->handle, surface, &format_count, NULL),
         "Unable to load surface formats", FAILED_ENUMERATE_SURFACE_FORMATS);
-    ASSERT_VULKAN_STATUS(vkGetPhysicalDeviceSurfacePresentModesKHR(device->handle, surface, &present_mode_count, NULL),
+    ASSERT_VK_LOG(vkGetPhysicalDeviceSurfacePresentModesKHR(device->handle, surface, &present_mode_count, NULL),
         "Unable to load surface present modes", FAILED_ENUMERATE_PRESENT_MODES);
     if (format_count > SURFACE_MAX_FORMATS) {
         return TOO_MANY_SURFACE_FORMATS_REQUESTED;
@@ -32,9 +32,9 @@ SurfaceSupportError surface_support_details_load(SurfaceSupportDetails* details,
     VkSurfaceFormatKHR formats[format_count];
     VkPresentModeKHR present_modes[present_mode_count];
 
-    ASSERT_VULKAN_STATUS(vkGetPhysicalDeviceSurfaceFormatsKHR(device->handle, surface, &format_count, formats),
+    ASSERT_VK_LOG(vkGetPhysicalDeviceSurfaceFormatsKHR(device->handle, surface, &format_count, formats),
         "Unable to load surface formats", FAILED_ENUMERATE_SURFACE_FORMATS);
-    ASSERT_VULKAN_STATUS(
+    ASSERT_VK_LOG(
         vkGetPhysicalDeviceSurfacePresentModesKHR(device->handle, surface, &present_mode_count, present_modes),
         "Unable to load surface present modes", FAILED_ENUMERATE_PRESENT_MODES);
 

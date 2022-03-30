@@ -45,7 +45,7 @@ bool command_pool_init(CommandPool* pool, const Context* context, const CommandP
 
     VkCommandPool handle;
     VkResult status = vkCreateCommandPool(pool->context->device.handle, &pool_info, NULL, &handle);
-    ASSERT_VULKAN_STATUS(status, "Unable to create command pool", false);
+    ASSERT_VK_LOG(status, "Unable to create command pool", false);
     pool->handle = handle;
 
     bool buffer_status = true;
@@ -110,7 +110,7 @@ bool command_pool_add_primary_buffers(CommandPool* pool, uint32_t count) {
     };
     VkResult status = vkAllocateCommandBuffers(
         pool->context->device.handle, &buffer_info, &pool->primary_buffers[pool->primary_buffer_count]);
-    ASSERT_VULKAN_STATUS(status, "Unable to allocate primary command buffers", false);
+    ASSERT_VK_LOG(status, "Unable to allocate primary command buffers", false);
     pool->primary_buffer_count += count;
 
     return true;
@@ -132,7 +132,7 @@ bool command_pool_add_secondary_buffers(CommandPool* pool, uint32_t count) {
         .commandBufferCount = count,
     };
     VkResult status = vkAllocateCommandBuffers(pool->context->device.handle, &buffer_info, pool->secondary_buffers);
-    ASSERT_VULKAN_STATUS(status, "Unable to allocate secondary command buffers", false);
+    ASSERT_VK_LOG(status, "Unable to allocate secondary command buffers", false);
     pool->secondary_buffer_count += count;
 
     return true;
@@ -172,7 +172,7 @@ bool command_pool_reset(CommandPool* pool, bool release_resources) {
     }
 
     VkResult status = vkResetCommandPool(pool->context->device.handle, pool->handle, flags);
-    ASSERT_VULKAN_STATUS(status, "Unable to reset command pool", false);
+    ASSERT_VK_LOG(status, "Unable to reset command pool", false);
 
     return true;
 }

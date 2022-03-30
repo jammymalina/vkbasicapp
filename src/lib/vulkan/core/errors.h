@@ -4,7 +4,15 @@
 #include "../../core/logger/logger.h"
 #include "../utils/debug.h"
 
-#define ASSERT_VULKAN_STATUS(status, message, ...)                                                                     \
+#define ASSERT_VK(status, ...)                                                                                         \
+    do {                                                                                                               \
+        VkResult reneger_strummy = status;                                                                             \
+        if (reneger_strummy != VK_SUCCESS) {                                                                           \
+            return __VA_ARGS__;                                                                                        \
+        }                                                                                                              \
+    } while (0)
+
+#define ASSERT_VK_LOG(status, message, ...)                                                                            \
     do {                                                                                                               \
         VkResult reneger_strummy = status;                                                                             \
         if (reneger_strummy != VK_SUCCESS) {                                                                           \
@@ -190,16 +198,20 @@ static inline const char* device_error_to_string(DeviceError err) {
 
 typedef enum SwapchainError {
     SWAPCHAIN_NO_ERROR,
+    SWAPCHAIN_EXPIRED,
     NO_DEVICE_PROVIDED_SWAPCHAIN,
     FAILED_QUERY_SURFACE_SUPPORT_DETAILS,
     FAILED_CREATE_SWAPCHAIN,
     FAILED_GET_SWAPCHAIN_IMAGES,
     FAILED_CREATE_SWAPCHAIN_IMAGE_VIEWS,
     TOO_MANY_IMAGES_REQUESTED,
+    FAILED_SWAPCHAIN_ACQUIRE_IMAGE,
 } SwapchainError;
 
 static inline const char* swapchain_error_to_string(SwapchainError err) {
     switch (err) {
+        case SWAPCHAIN_EXPIRED:
+            return "SWAPCHAIN_EXPIRED";
         case NO_DEVICE_PROVIDED_SWAPCHAIN:
             return "NO_DEVICE_PROVIDED_SWAPCHAIN";
         case FAILED_QUERY_SURFACE_SUPPORT_DETAILS:
@@ -212,6 +224,8 @@ static inline const char* swapchain_error_to_string(SwapchainError err) {
             return "FAILED_CREATE_SWAPCHAIN_IMAGE_VIEWS";
         case TOO_MANY_IMAGES_REQUESTED:
             return "TOO_MANY_IMAGES_REQUESTED";
+        case FAILED_SWAPCHAIN_ACQUIRE_IMAGE:
+            return "FAILED_SWAPCHAIN_ACQUIRE_IMAGE";
         default:
             return "Uknown";
     }
@@ -234,8 +248,14 @@ static inline const char* context_error_to_string(ContextError err) {
 typedef enum RenderingContextError {
     RENDERING_CONTEXT_NO_ERROR,
     RENDERING_CONTEXT_SWAPCHAIN_ERROR,
-    RENDEERING_CONTEXT_COMMAND_CONTEXT_ERROR,
+    RENDERING_CONTEXT_COMMAND_CONTEXT_ERROR,
     RENDERING_CONTEXT_INIT_ERROR,
+    RENDERING_CONTEXT_RENDER_TIMEOUT,
+    RENDERING_CONTEXT_RESET_FENCE_FAILED,
+    RENDERING_CONTEXT_COMMAND_BUFFER_ERROR,
+    RENDERING_CONTEXT_QUEUE_SUBMIT_FAILED,
+    RENDERING_CONTEXT_PRESENT_FAILED,
+    TOO_MANY_FRAMES_REQUESTED,
 } RenderingContextError;
 
 static inline const char* rendering_context_error_to_string(RenderingContextError err) {
@@ -244,8 +264,20 @@ static inline const char* rendering_context_error_to_string(RenderingContextErro
             return "RENDERING_CONTEXT_SWAPCHAIN_ERROR";
         case RENDERING_CONTEXT_INIT_ERROR:
             return "RENDERING_CONTEXT_INIT_ERROR";
-        case RENDEERING_CONTEXT_COMMAND_CONTEXT_ERROR:
-            return "RENDEERING_CONTEXT_COMMAND_CONTEXT_ERROR";
+        case RENDERING_CONTEXT_COMMAND_CONTEXT_ERROR:
+            return "RENDERING_CONTEXT_COMMAND_CONTEXT_ERROR";
+        case RENDERING_CONTEXT_RENDER_TIMEOUT:
+            return "RENDERING_CONTEXT_RENDER_TIMEOUT";
+        case RENDERING_CONTEXT_RESET_FENCE_FAILED:
+            return "RENDERING_CONTEXT_RESET_FENCE_FAILED";
+        case RENDERING_CONTEXT_COMMAND_BUFFER_ERROR:
+            return "RENDERING_CONTEXT_COMMAND_BUFFER_ERROR";
+        case RENDERING_CONTEXT_QUEUE_SUBMIT_FAILED:
+            return "RENDERING_CONTEXT_QUEUE_SUBMIT_FAILED";
+        case RENDERING_CONTEXT_PRESENT_FAILED:
+            return "RENDERING_CONTEXT_PRESENT_FAILED";
+        case TOO_MANY_FRAMES_REQUESTED:
+            return "TOO_MANY_FRAMES_REQUESTED";
         default:
             return "Uknown";
     }

@@ -1,5 +1,7 @@
 #include "./app.h"
 
+#include "../renderer/core/rendering_context_config.h"
+
 void app_init(App* app) {
     // TODO: Add ini configuration for the app
     AppWindowBuilder builder = {0};
@@ -14,8 +16,12 @@ void app_init(App* app) {
 
     command_context_init(&app->command_context, &app->context);
 
-    RenderingContextError render_ctx_status = rendering_context_init(&app->rendering_context, &app->command_context);
+    RenderingContextConfig rendering_context_config = rendering_context_config_default();
+    RenderingContextError render_ctx_status =
+        rendering_context_init(&app->rendering_context, &app->command_context, rendering_context_config);
     ASSERT_NO_ERROR_LOG(render_ctx_status, RenderingContextError, rendering_context_error_to_string);
+
+    renderer_init(&app->renderer, &app->rendering_context);
 
     app->is_init = true;
 }
@@ -42,6 +48,8 @@ int app_start(App* app) {
                     break;
             }
         }
+
+        is_running = renderer_render(&app->renderer);
     }
 
     return 0;

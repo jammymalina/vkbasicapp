@@ -37,12 +37,13 @@ uint32_t queue_utils_get_separate_queue_index(
     return index;
 }
 
-uint32_t queue_utils_get_present_queue_index(const PhysicalDevice* device, const Instance* instance) {
+uint32_t queue_utils_get_present_queue_index(const PhysicalDevice* device) {
     for (uint32_t i = 0; i < device->queue_family_count; i++) {
         VkBool32 present_support = false;
         VkQueueFlags flags = device->queue_families[i].queueFlags;
-        if (instance->surface != VK_NULL_HANDLE) {
-            VkResult res = vkGetPhysicalDeviceSurfaceSupportKHR(device->handle, i, instance->surface, &present_support);
+        if (device->instance->surface != VK_NULL_HANDLE) {
+            VkResult res =
+                vkGetPhysicalDeviceSurfaceSupportKHR(device->handle, i, device->instance->surface, &present_support);
             if (res != VK_SUCCESS) {
                 return UINT32_MAX;
             }

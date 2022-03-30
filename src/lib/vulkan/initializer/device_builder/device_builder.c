@@ -13,7 +13,7 @@ static DeviceError device_builder_validate(const DeviceBuilder* builder) {
 }
 
 bool device_builder_add_custom_queue_descriptor(DeviceBuilder* builder, const QueueDescriptor* descriptor) {
-    if (builder->custom_queue_descriptor_count >= DEVICE_BUILDER_QUEUE_MAX_DESCRIPTORS) {
+    if (builder->custom_queue_descriptor_count >= DEVICE_MAX_QUEUE_DESCRIPTORS) {
         return false;
     }
     queue_descriptor_copy(descriptor, &builder->custom_queue_descriptors[builder->custom_queue_descriptor_count]);
@@ -86,7 +86,7 @@ DeviceError device_builder_build(DeviceBuilder* builder, Device* device) {
 
     VkDevice handle;
     VkResult device_status = vkCreateDevice(builder->physical_device->handle, &device_info, NULL, &handle);
-    ASSERT_VULKAN_STATUS(device_status, "Unable to create a device", FAILED_CREATE_DEVICE);
+    ASSERT_VK_LOG(device_status, "Unable to create a device", FAILED_CREATE_DEVICE);
 
     device->handle = handle;
     device->physical_device = builder->physical_device;
@@ -96,6 +96,11 @@ DeviceError device_builder_build(DeviceBuilder* builder, Device* device) {
         return FAILED_TO_LOAD_DEVICE_FUNCTIONS;
     }
     device->loaded_device_functions = true;
+
+    for (uint32_t i = 0; i < builder->custom_queue_descriptor_count; i++) {
+        queue_descriptor_copy(&builder->custom_queue_descriptors[i], &device->queue_descriptors[i]);
+    }
+    device->queue_descriptor_count = builder->custom_queue_descriptor_count;
 
     return DEVICE_NO_ERROR;
 }

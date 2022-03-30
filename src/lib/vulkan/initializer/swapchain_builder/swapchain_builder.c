@@ -21,7 +21,7 @@ SwapchainError swapchain_builder_build(SwapchainBuilder* builder, Swapchain* swa
     const Instance* instance = physical_device->instance;
 
     if (builder->combined_queue == UINT32_MAX) {
-        builder->combined_queue = queue_utils_get_present_queue_index(physical_device, instance);
+        builder->combined_queue = queue_utils_get_present_queue_index(physical_device);
     }
 
     if (builder->desired_format_count == 0) {
@@ -86,14 +86,18 @@ SwapchainError swapchain_builder_build(SwapchainBuilder* builder, Swapchain* swa
 
     VkSwapchainKHR handle;
     VkResult create_status = vkCreateSwapchainKHR(builder->device->handle, &swapchain_create_info, NULL, &handle);
-    ASSERT_VULKAN_STATUS(create_status, "Unable to create swapchain", FAILED_CREATE_SWAPCHAIN);
+    ASSERT_VK_LOG(create_status, "Unable to create swapchain", FAILED_CREATE_SWAPCHAIN);
 
     swapchain->handle = handle;
     swapchain->device = builder->device;
     swapchain->image_count = image_count;
     swapchain->image_format = surface_format.format;
     swapchain->extent = extent;
-    swapchain->queue_index = builder->combined_queue;
+    swapchain->queue = device_get_present_queue(builder->device);
+
+    if (swapchain->queue.handle == VK_NULL_HANDLE) {
+        return FAILED_CREATE_SWAPCHAIN;
+    }
 
     status = swapchain_load_images(swapchain);
     ASSERT_NO_ERROR(status, status);

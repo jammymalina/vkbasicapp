@@ -43,12 +43,12 @@ static PhysicalDeviceError physical_device_load_queue_families(PhysicalDevice* d
 static PhysicalDeviceError physical_device_load_extensions(PhysicalDevice* device) {
     uint32_t extension_count = 0;
     VkResult status = vkEnumerateDeviceExtensionProperties(device->handle, NULL, &extension_count, NULL);
-    ASSERT_VULKAN_STATUS(
+    ASSERT_VK_LOG(
         status, "Unable to enumerate physical device extensions", FAILED_ENUMERATE_PHYSICAL_DEVICE_EXTENSIONS);
     if (extension_count > 0) {
         VkExtensionProperties extensions[extension_count];
         status = vkEnumerateDeviceExtensionProperties(device->handle, NULL, &extension_count, extensions);
-        ASSERT_VULKAN_STATUS(
+        ASSERT_VK_LOG(
             status, "Unable to enumerate physical device extensions", FAILED_ENUMERATE_PHYSICAL_DEVICE_EXTENSIONS);
 
         bool add_ext_status = true;
@@ -79,6 +79,7 @@ static void physical_device_selector_load_extended_feature_chain(
 static PhysicalDeviceError physical_device_selector_load_device_data(
     PhysicalDeviceSelector* selector, PhysicalDevice* device, VkPhysicalDevice handle) {
     PhysicalDeviceError status;
+    device->instance = selector->instance;
     device->handle = handle;
 
     physical_device_load_device_basic_props(device);
@@ -162,7 +163,7 @@ static Rating physical_device_selector_rate_device(PhysicalDeviceSelector* selec
         queue_utils_get_separate_queue_index(device, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT) != UINT32_MAX;
     bool separate_transfer =
         queue_utils_get_separate_queue_index(device, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_COMPUTE_BIT) != UINT32_MAX;
-    bool present_queue = queue_utils_get_present_queue_index(device, selector->instance) != UINT32_MAX;
+    bool present_queue = queue_utils_get_present_queue_index(device) != UINT32_MAX;
 
     if (selector->require_dedicated_compute_queue && !dedicated_compute) return LOW_RATING;
     if (selector->require_dedicated_transfer_queue && !dedicated_transfer) return LOW_RATING;
@@ -274,14 +275,14 @@ PhysicalDeviceError physical_device_selector_select(PhysicalDeviceSelector* sele
 
     uint32_t device_count = 0;
     VkResult device_status = vkEnumeratePhysicalDevices(selector->instance->handle, &device_count, NULL);
-    ASSERT_VULKAN_STATUS(device_status, "Unable to enumerate physical devices", FAILED_ENUMERATE_PHYSICAL_DEVICES);
+    ASSERT_VK_LOG(device_status, "Unable to enumerate physical devices", FAILED_ENUMERATE_PHYSICAL_DEVICES);
     if (device_count == 0) {
         return NO_PHYSICAL_DEVICES_FOUND;
     }
 
     VkPhysicalDevice device_handles[device_count];
     device_status = vkEnumeratePhysicalDevices(selector->instance->handle, &device_count, device_handles);
-    ASSERT_VULKAN_STATUS(device_status, "Unable to enumerate physical devices", FAILED_ENUMERATE_PHYSICAL_DEVICES);
+    ASSERT_VK_LOG(device_status, "Unable to enumerate physical devices", FAILED_ENUMERATE_PHYSICAL_DEVICES);
 
     log_info("Found %d physical device(s)", device_count);
 

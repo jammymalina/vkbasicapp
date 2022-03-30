@@ -48,23 +48,18 @@ bool command_context_add_command_pool(CommandContext* command_context, const Com
     return status;
 }
 
-VkCommandBuffer command_context_start_recording(
-    CommandContext* command_context, const char* pool_name, const CommandBufferStartInfo* start_info) {
-    VkCommandBuffer buffer =
-        command_context_get_buffer(command_context, pool_name, start_info->buffer_index, start_info->secondary);
-    if (buffer == VK_NULL_HANDLE) {
-        return VK_NULL_HANDLE;
+bool command_context_remove_command_pool(CommandContext* command_context, const char* name) {
+    if (!command_context_is_init(command_context)) {
+        return false;
     }
 
-    VkCommandBufferBeginInfo info = {
-        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-        .pNext = NULL,
-        .flags = start_info->flags,
-        .pInheritanceInfo = start_info->inheritance,
-    };
-    VkResult status = vkBeginCommandBuffer(buffer, &info);
-    ASSERT_VULKAN_STATUS(status, "Unable to start command buffer recording", VK_NULL_HANDLE);
+    return command_pool_cache_remove(&command_context->command_pool_cache, name);
+}
 
+VkCommandBuffer command_context_get_command_buffer(
+    CommandContext* command_context, const char* pool_name, const CommandBufferInfo* info) {
+    VkCommandBuffer buffer =
+        command_context_get_buffer(command_context, pool_name, info->buffer_index, info->secondary);
     return buffer;
 }
 

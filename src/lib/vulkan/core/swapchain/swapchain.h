@@ -6,6 +6,7 @@
 
 #include "../device/device.h"
 #include "../errors.h"
+#include "../queue/queue.h"
 #include "./surface_support_details.h"
 
 #define SWAPCHAIN_MAX_IMAGES 16
@@ -23,7 +24,9 @@ typedef struct Swapchain {
     VkImageView image_views[SWAPCHAIN_MAX_IMAGES];
     uint32_t init_image_view_count;
 
-    uint32_t queue_index;
+    Queue queue;
+
+    uint32_t image_index;
 } Swapchain;
 
 static inline void swapchain_clear(Swapchain* swapchain) {
@@ -36,7 +39,9 @@ static inline void swapchain_clear(Swapchain* swapchain) {
     swapchain->init_images = false;
     swapchain->init_image_view_count = 0;
 
-    swapchain->queue_index = UINT32_MAX;
+    queue_clear(&swapchain->queue);
+
+    swapchain->image_index = 0;
 }
 
 bool swapchain_is_init(const Swapchain* swapchain);
@@ -44,6 +49,8 @@ void swapchain_copy(const Swapchain* src, Swapchain* dst, bool destroy_dst);
 
 SwapchainError swapchain_load_images(Swapchain* swapchain);
 SwapchainError swapchain_load_image_views(Swapchain* swapchain);
+
+SwapchainError swapchain_acquire_next_frame(Swapchain* swapchain, VkSemaphore semaphore);
 
 void swapchain_destroy(Swapchain* swapchain);
 

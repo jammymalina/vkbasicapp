@@ -5,7 +5,8 @@
 #include "../functions.h"
 
 bool swapchain_is_init(const Swapchain* swapchain) {
-    return swapchain->device != NULL && swapchain->handle != VK_NULL_HANDLE && swapchain->queue_index != UINT32_MAX;
+    return swapchain->device != NULL && swapchain->handle != VK_NULL_HANDLE &&
+           swapchain->queue.handle != VK_NULL_HANDLE;
 }
 
 void swapchain_copy(const Swapchain* src, Swapchain* dst, bool destroy_dst) {
@@ -18,7 +19,8 @@ void swapchain_copy(const Swapchain* src, Swapchain* dst, bool destroy_dst) {
     dst->image_count = src->image_count;
     dst->image_format = src->image_format;
     dst->extent = src->extent;
-    dst->queue_index = src->queue_index;
+    dst->queue = src->queue;
+    dst->image_index = src->image_index;
 
     dst->init_images = src->init_images;
     dst->init_image_view_count = src->init_image_view_count;
@@ -38,13 +40,13 @@ SwapchainError swapchain_load_images(Swapchain* swapchain) {
     VkResult status;
 
     status = vkGetSwapchainImagesKHR(swapchain->device->handle, swapchain->handle, &count, NULL);
-    ASSERT_VULKAN_STATUS(status, "Unable to get swapchain images", FAILED_GET_SWAPCHAIN_IMAGES);
+    ASSERT_VK_LOG(status, "Unable to get swapchain images", FAILED_GET_SWAPCHAIN_IMAGES);
     if (count > SWAPCHAIN_MAX_IMAGES) {
         return TOO_MANY_IMAGES_REQUESTED;
     }
 
     status = vkGetSwapchainImagesKHR(swapchain->device->handle, swapchain->handle, &count, swapchain->images);
-    ASSERT_VULKAN_STATUS(status, "Unable to get swapchain images", FAILED_GET_SWAPCHAIN_IMAGES);
+    ASSERT_VK_LOG(status, "Unable to get swapchain images", FAILED_GET_SWAPCHAIN_IMAGES);
 
     swapchain->image_count = count;
     swapchain->init_images = true;
@@ -83,11 +85,28 @@ SwapchainError swapchain_load_image_views(Swapchain* swapchain) {
                 },
         };
         status = vkCreateImageView(swapchain->device->handle, &view_info, NULL, &swapchain->image_views[i]);
-        ASSERT_VULKAN_STATUS(status, "Unable to get swapchain image view", FAILED_CREATE_SWAPCHAIN_IMAGE_VIEWS);
+        ASSERT_VK_LOG(status, "Unable to get swapchain image view", FAILED_CREATE_SWAPCHAIN_IMAGE_VIEWS);
         swapchain->init_image_view_count += 1;
     }
 
     return SWAPCHAIN_NO_ERROR;
+}
+
+SwapchainError swapchain_acquire_next_frame(Swapchain* swapchain, VkSemaphore semaphore) {
+    if (!swapchain_is_init(swapchain)) {
+        return FAILED_SWAPCHAIN_ACQUIRE_IMAGE;
+    }
+
+    VkResult status = vkAcquireNextImageKHR(
+        swapchain->device->handle, swapchain->handle, UINT64_MAX, semaphore, NULL, &swapchain->image_index);
+    if (status == VK_SUCCESS) {
+        return SWAPCHAIN_NO_ERROR;
+    }
+    if (status == VK_ERROR_OUT_OF_DATE_KHR || status == VK_SUBOPTIMAL_KHR) {
+        return SWAPCHAIN_EXPIRED;
+    }
+
+    return FAILED_SWAPCHAIN_ACQUIRE_IMAGE;
 }
 
 void swapchain_destroy(Swapchain* swapchain) {
