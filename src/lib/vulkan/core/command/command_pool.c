@@ -52,7 +52,7 @@ bool command_pool_init(CommandPool* pool, const Context* context, const CommandP
     if (info->primary_buffer_count > 0) {
         buffer_status &= command_pool_add_primary_buffers(pool, info->primary_buffer_count);
     }
-    if (info->secondary_buffer_count > 0) {
+    if (buffer_status && info->secondary_buffer_count > 0) {
         buffer_status &= command_pool_add_secondary_buffers(pool, info->secondary_buffer_count);
     }
 

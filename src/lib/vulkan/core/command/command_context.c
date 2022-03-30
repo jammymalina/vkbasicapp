@@ -1,6 +1,21 @@
 #include "./command_context.h"
 
-#include "command_pool.h"
+static inline VkCommandBuffer command_context_get_buffer(
+    CommandContext* command_context, const char* pool_name, uint32_t buffer_index, bool secondary) {
+    if (!command_context_is_init(command_context)) {
+        return VK_NULL_HANDLE;
+    }
+
+    CommandPool* pool = command_pool_cache_get(&command_context->command_pool_cache, pool_name);
+    if (!pool) {
+        return VK_NULL_HANDLE;
+    }
+
+    if (secondary) {
+        return command_pool_get_secondary_buffer(pool, buffer_index);
+    }
+    return command_pool_get_primary_buffer(pool, buffer_index);
+}
 
 void command_context_clear(CommandContext* command_context) {
     command_context->context = NULL;
@@ -33,22 +48,24 @@ bool command_context_add_command_pool(CommandContext* command_context, const Com
     return status;
 }
 
-bool command_context_start_recording(CommandContext* command_context, const char* pool_name, uint32_t buffer_index) {
-    return true;
-}
+VkCommandBuffer command_context_start_recording(
+    CommandContext* command_context, const char* pool_name, const CommandBufferStartInfo* start_info) {
+    VkCommandBuffer buffer =
+        command_context_get_buffer(command_context, pool_name, start_info->buffer_index, start_info->secondary);
+    if (buffer == VK_NULL_HANDLE) {
+        return VK_NULL_HANDLE;
+    }
 
-bool command_context_start_secondary_recording(
-    CommandContext* command_context, const char* pool_name, uint32_t buffer_index) {
-    return true;
-}
+    VkCommandBufferBeginInfo info = {
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+        .pNext = NULL,
+        .flags = start_info->flags,
+        .pInheritanceInfo = start_info->inheritance,
+    };
+    VkResult status = vkBeginCommandBuffer(buffer, &info);
+    ASSERT_VULKAN_STATUS(status, "Unable to start command buffer recording", VK_NULL_HANDLE);
 
-bool command_context_end_recording(CommandContext* command_context, const char* pool_name, uint32_t buffer_index) {
-    return true;
-}
-
-bool command_context_end_secondary_recording(
-    CommandContext* command_context, const char* pool_name, uint32_t buffer_index) {
-    return true;
+    return buffer;
 }
 
 void command_context_destroy(CommandContext* command_context) {
