@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 
+#include "../../../core/utils/macro.h"
 #include "../functions.h"
 
 bool swapchain_is_init(const Swapchain* swapchain) {
@@ -9,11 +10,7 @@ bool swapchain_is_init(const Swapchain* swapchain) {
            swapchain->queue.handle != VK_NULL_HANDLE;
 }
 
-void swapchain_copy(const Swapchain* src, Swapchain* dst, bool destroy_dst) {
-    if (destroy_dst) {
-        swapchain_destroy(dst);
-    }
-
+void swapchain_copy(const Swapchain* src, Swapchain* dst) {
     dst->handle = src->handle;
     dst->device = src->device;
     dst->image_count = src->image_count;
@@ -92,13 +89,13 @@ SwapchainError swapchain_load_image_views(Swapchain* swapchain) {
     return SWAPCHAIN_NO_ERROR;
 }
 
-SwapchainError swapchain_acquire_next_frame(Swapchain* swapchain, VkSemaphore semaphore) {
+SwapchainError swapchain_acquire_next_image(Swapchain* swapchain, VkSemaphore semaphore) {
     if (!swapchain_is_init(swapchain)) {
         return FAILED_SWAPCHAIN_ACQUIRE_IMAGE;
     }
 
-    VkResult status = vkAcquireNextImageKHR(
-        swapchain->device->handle, swapchain->handle, UINT64_MAX, semaphore, NULL, &swapchain->image_index);
+    VkResult status = vkAcquireNextImageKHR(swapchain->device->handle, swapchain->handle,
+        TIME_MS_TO_NS(((uint64_t)10000)), semaphore, NULL, &swapchain->image_index);
     if (status == VK_SUCCESS) {
         return SWAPCHAIN_NO_ERROR;
     }

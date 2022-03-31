@@ -49,7 +49,7 @@ int app_start(App* app) {
             }
         }
 
-        is_running = renderer_render(&app->renderer);
+        is_running &= renderer_render(&app->renderer);
     }
 
     return 0;

@@ -255,6 +255,7 @@ typedef enum RenderingContextError {
     RENDERING_CONTEXT_COMMAND_BUFFER_ERROR,
     RENDERING_CONTEXT_QUEUE_SUBMIT_FAILED,
     RENDERING_CONTEXT_PRESENT_FAILED,
+    RENDERING_CONTEXT_REFRESHING,
     TOO_MANY_FRAMES_REQUESTED,
 } RenderingContextError;
 
@@ -278,6 +279,8 @@ static inline const char* rendering_context_error_to_string(RenderingContextErro
             return "RENDERING_CONTEXT_PRESENT_FAILED";
         case TOO_MANY_FRAMES_REQUESTED:
             return "TOO_MANY_FRAMES_REQUESTED";
+        case RENDERING_CONTEXT_REFRESHING:
+            return "RENDERING_CONTEXT_REFRESHING";
         default:
             return "Uknown";
     }

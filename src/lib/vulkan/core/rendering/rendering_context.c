@@ -27,14 +27,13 @@ static SwapchainError rendering_context_create_swapchain(RenderingContext* rende
     Swapchain swapchain;
 
     SwapchainBuilder swapchain_builder = {0};
-    swapchain_builder.old_swapchain = rendering_context->swapchain.handle;
     swapchain_builder_clear(&swapchain_builder);
     swapchain_builder.device = &rendering_context->command_context->context->device;
 
     SwapchainError status = swapchain_builder_build(&swapchain_builder, &swapchain);
     ASSERT_NO_ERROR(status, status);
 
-    swapchain_copy(&swapchain, &rendering_context->swapchain, true);
+    swapchain_copy(&swapchain, &rendering_context->swapchain);
 
     return SWAPCHAIN_NO_ERROR;
 }
@@ -126,7 +125,7 @@ RenderingContextError rendering_context_start_frame(RenderingContext* rendering_
     status = vkResetFences(device, 1, &resources->render_fence);
     ASSERT_VK_LOG(status, "Unable to reset the fence", RENDERING_CONTEXT_RESET_FENCE_FAILED);
 
-    SwapchainError swapchain_status = swapchain_acquire_next_frame(swapchain, resources->render_semaphore);
+    SwapchainError swapchain_status = swapchain_acquire_next_image(swapchain, resources->render_semaphore);
     if (swapchain_status == SWAPCHAIN_EXPIRED) {
         ASSERT_NO_ERROR(rendering_context_recreate_swapchain(rendering_context), RENDERING_CONTEXT_SWAPCHAIN_ERROR);
         return rendering_context_start_frame(rendering_context);
@@ -282,12 +281,14 @@ RenderingContextError rendering_context_end_frame(RenderingContext* rendering_co
     };
     status = vkQueuePresentKHR(rendering_context->swapchain.queue.handle, &present_info);
 
+    if (status == VK_ERROR_OUT_OF_DATE_KHR || status == VK_SUBOPTIMAL_KHR) {
+        ASSERT_NO_ERROR(rendering_context_recreate_swapchain(rendering_context), RENDERING_CONTEXT_SWAPCHAIN_ERROR);
+        return RENDERING_CONTEXT_REFRESHING;
+    }
+
     rendering_context->current_frame =
         (rendering_context->current_frame + 1) % rendering_context->config.frames_in_flight;
 
-    if (status == VK_ERROR_OUT_OF_DATE_KHR || status == VK_SUBOPTIMAL_KHR) {
-        return rendering_context_recreate_swapchain(rendering_context);
-    }
     ASSERT_VK(status, RENDERING_CONTEXT_PRESENT_FAILED);
 
     return RENDERING_CONTEXT_NO_ERROR;
