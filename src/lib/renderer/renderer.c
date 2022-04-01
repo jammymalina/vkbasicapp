@@ -6,6 +6,13 @@ void renderer_clear(Renderer* renderer) { renderer->context = NULL; }
 
 void renderer_init(Renderer* renderer, RenderingContext* context) { renderer->context = context; }
 
+bool renderer_resize(Renderer* renderer) {
+    RenderingContextError status = rendering_context_resize(renderer->context);
+    ASSERT_NO_ERROR_LOG(status, RenderingContextError, rendering_context_error_to_string, false);
+
+    return true;
+}
+
 bool renderer_render(Renderer* renderer) {
     RenderingContext* context = renderer->context;
     RenderingContextError status = rendering_context_start_frame(context);

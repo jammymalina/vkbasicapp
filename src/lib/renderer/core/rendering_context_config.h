@@ -23,7 +23,7 @@ static inline RenderingContextConfig rendering_context_config_default() {
         .clear_screen = true,
         .clear_color = color_teal(),
         .depth_enabled = false,
-        .render_timeout_ms = 5000,
+        .render_timeout_ms = 1000000,
     };
 }
 

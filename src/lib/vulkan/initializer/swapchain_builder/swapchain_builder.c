@@ -14,6 +14,7 @@ static SwapchainError swapchain_builder_validate(const SwapchainBuilder* builder
 }
 
 SwapchainError swapchain_builder_build(SwapchainBuilder* builder, Swapchain* swapchain) {
+    swapchain_clear(swapchain);
     SwapchainError status = swapchain_builder_validate(builder);
     ASSERT_NO_ERROR(status, status);
 
@@ -55,13 +56,14 @@ SwapchainError swapchain_builder_build(SwapchainBuilder* builder, Swapchain* swa
         &surface_support, builder->desired_formats, builder->desired_format_count, builder->format_feature_flags);
     VkPresentModeKHR present_mode = surface_support_details_find_present_mode(
         &surface_support, builder->desired_present_modes, builder->desired_present_mode_count);
-    VkExtent2D extent =
-        surface_support_details_find_extent(&surface_support, builder->desired_width, builder->desired_height);
 
     VkSurfaceTransformFlagBitsKHR pre_transform = builder->pre_transform;
     if (builder->pre_transform == (VkSurfaceTransformFlagBitsKHR){0}) {
         pre_transform = surface_support.capabilities.currentTransform;
     }
+
+    VkExtent2D extent =
+        surface_support_details_find_extent(&surface_support, builder->desired_width, builder->desired_height);
 
     VkSwapchainCreateInfoKHR swapchain_create_info = {
         .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,

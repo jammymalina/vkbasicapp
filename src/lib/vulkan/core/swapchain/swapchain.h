@@ -52,6 +52,7 @@ SwapchainError swapchain_load_image_views(Swapchain* swapchain);
 
 SwapchainError swapchain_acquire_next_image(Swapchain* swapchain, VkSemaphore semaphore);
 
-void swapchain_destroy(Swapchain* swapchain);
+void swapchain_destroy(Swapchain* swapchain, bool keep_handle);
+void swapchain_destroy_handle(Swapchain* swapchain);
 
 #endif

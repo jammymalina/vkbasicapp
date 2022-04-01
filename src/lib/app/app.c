@@ -36,6 +36,7 @@ int app_start(App* app) {
     bool is_running = true;
     while (is_running) {
         SDL_Event event;
+        bool resized = false;
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
@@ -46,10 +47,20 @@ int app_start(App* app) {
                         is_running = false;
                     }
                     break;
+                case SDL_WINDOWEVENT:
+                    if (event.window.event == SDL_WINDOWEVENT_RESIZED ||
+                        event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+                        resized = true;
+                    }
+                    break;
             }
         }
 
-        is_running &= renderer_render(&app->renderer);
+        if (resized) {
+            is_running = is_running && renderer_resize(&app->renderer);
+        }
+
+        is_running = is_running && renderer_render(&app->renderer);
     }
 
     return 0;

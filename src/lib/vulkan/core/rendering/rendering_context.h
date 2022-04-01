@@ -42,6 +42,8 @@ static inline void rendering_context_clear(RenderingContext* rendering_context) 
 RenderingContextError rendering_context_init(
     RenderingContext* rendering_context, CommandContext* context, RenderingContextConfig config);
 
+RenderingContextError rendering_context_resize(RenderingContext* rendering_context);
+
 RenderingContextError rendering_context_start_frame(RenderingContext* rendering_context);
 RenderingContextError rendering_context_end_frame(RenderingContext* rendering_context);
 

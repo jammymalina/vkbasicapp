@@ -9,8 +9,8 @@ void app_window_builder_build(const AppWindowBuilder* builder, AppWindow* window
 
     SDL_Init(SDL_INIT_VIDEO);
 
-    window->handle = SDL_CreateWindow(builder->title, builder->x, builder->y, builder->width, builder->height,
-        SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE);
+    window->handle =
+        SDL_CreateWindow(builder->title, builder->x, builder->y, builder->width, builder->height, SDL_WINDOW_VULKAN);
     if (window->handle == NULL) {
         log_error("Unable to create the window: %s", SDL_GetError());
         return;

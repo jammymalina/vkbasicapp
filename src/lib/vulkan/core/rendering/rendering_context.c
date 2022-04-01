@@ -21,17 +21,26 @@ static RenderingContextError rendering_context_validate_config(
     return RENDERING_CONTEXT_NO_ERROR;
 }
 
-static SwapchainError rendering_context_create_swapchain(RenderingContext* rendering_context) {
-    swapchain_destroy(&rendering_context->swapchain);
+static SwapchainError rendering_context_create_swapchain(RenderingContext* rendering_context, bool reuse_old_handle) {
+    swapchain_destroy(&rendering_context->swapchain, reuse_old_handle);
 
     Swapchain swapchain;
 
     SwapchainBuilder swapchain_builder = {0};
     swapchain_builder_clear(&swapchain_builder);
     swapchain_builder.device = &rendering_context->command_context->context->device;
+    if (reuse_old_handle) {
+        swapchain_builder.old_swapchain = rendering_context->swapchain.handle;
+    }
 
     SwapchainError status = swapchain_builder_build(&swapchain_builder, &swapchain);
-    ASSERT_NO_ERROR(status, status);
+    if (status != SWAPCHAIN_NO_ERROR) {
+        swapchain_destroy(&swapchain, false);
+        return status;
+    }
+    if (reuse_old_handle) {
+        swapchain_destroy_handle(&rendering_context->swapchain);
+    }
 
     swapchain_copy(&swapchain, &rendering_context->swapchain);
 
@@ -57,10 +66,11 @@ static RenderingContextError rendering_context_create_command_buffers(RenderingC
     return RENDERING_CONTEXT_NO_ERROR;
 }
 
-static RenderingContextError rendering_context_recreate_swapchain(RenderingContext* rendering_context) {
+static RenderingContextError rendering_context_recreate_swapchain(
+    RenderingContext* rendering_context, bool reuse_old_handle) {
     vkDeviceWaitIdle(rendering_context_get_device(rendering_context));
 
-    SwapchainError swapchain_status = rendering_context_create_swapchain(rendering_context);
+    SwapchainError swapchain_status = rendering_context_create_swapchain(rendering_context, reuse_old_handle);
     ASSERT_NO_ERROR(swapchain_status, RENDERING_CONTEXT_SWAPCHAIN_ERROR);
 
     RenderingContextError status = rendering_context_create_command_buffers(rendering_context);
@@ -76,7 +86,7 @@ RenderingContextError rendering_context_init(
 
     VkDevice device = rendering_context_get_device(rendering_context);
 
-    SwapchainError swapchain_status = rendering_context_create_swapchain(rendering_context);
+    SwapchainError swapchain_status = rendering_context_create_swapchain(rendering_context, false);
     ASSERT_NO_ERROR(swapchain_status, RENDERING_CONTEXT_SWAPCHAIN_ERROR);
 
     RenderingContextError status = rendering_context_validate_config(rendering_context, &config);
@@ -113,6 +123,13 @@ RenderingContextError rendering_context_init(
     return RENDERING_CONTEXT_NO_ERROR;
 }
 
+RenderingContextError rendering_context_resize(RenderingContext* rendering_context) {
+    RenderingContextError status = rendering_context_recreate_swapchain(rendering_context, true);
+    ASSERT_NO_ERROR(status, status);
+
+    return RENDERING_CONTEXT_NO_ERROR;
+}
+
 RenderingContextError rendering_context_start_frame(RenderingContext* rendering_context) {
     VkDevice device = rendering_context_get_device(rendering_context);
     uint32_t current_frame = rendering_context->current_frame;
@@ -127,8 +144,9 @@ RenderingContextError rendering_context_start_frame(RenderingContext* rendering_
 
     SwapchainError swapchain_status = swapchain_acquire_next_image(swapchain, resources->render_semaphore);
     if (swapchain_status == SWAPCHAIN_EXPIRED) {
-        ASSERT_NO_ERROR(rendering_context_recreate_swapchain(rendering_context), RENDERING_CONTEXT_SWAPCHAIN_ERROR);
-        return rendering_context_start_frame(rendering_context);
+        ASSERT_NO_ERROR(
+            rendering_context_recreate_swapchain(rendering_context, false), RENDERING_CONTEXT_SWAPCHAIN_ERROR);
+        return RENDERING_CONTEXT_REFRESHING;
     }
 
     CommandBufferInfo buffer_info = {
@@ -282,14 +300,14 @@ RenderingContextError rendering_context_end_frame(RenderingContext* rendering_co
     status = vkQueuePresentKHR(rendering_context->swapchain.queue.handle, &present_info);
 
     if (status == VK_ERROR_OUT_OF_DATE_KHR || status == VK_SUBOPTIMAL_KHR) {
-        ASSERT_NO_ERROR(rendering_context_recreate_swapchain(rendering_context), RENDERING_CONTEXT_SWAPCHAIN_ERROR);
-        return RENDERING_CONTEXT_REFRESHING;
+        ASSERT_NO_ERROR(
+            rendering_context_recreate_swapchain(rendering_context, false), RENDERING_CONTEXT_SWAPCHAIN_ERROR);
+    } else if (status != VK_SUCCESS) {
+        return RENDERING_CONTEXT_PRESENT_FAILED;
     }
 
     rendering_context->current_frame =
         (rendering_context->current_frame + 1) % rendering_context->config.frames_in_flight;
-
-    ASSERT_VK(status, RENDERING_CONTEXT_PRESENT_FAILED);
 
     return RENDERING_CONTEXT_NO_ERROR;
 }
@@ -312,6 +330,6 @@ void rendering_context_destroy(RenderingContext* rendering_context) {
             vkDestroyFence(device, resources->render_fence, NULL);
         }
     }
-    swapchain_destroy(&rendering_context->swapchain);
+    swapchain_destroy(&rendering_context->swapchain, false);
     rendering_context_clear(rendering_context);
 }

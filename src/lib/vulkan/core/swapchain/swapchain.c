@@ -1,13 +1,13 @@
 #include "./swapchain.h"
 
 #include <stdint.h>
+#include <vulkan/vulkan_core.h>
 
 #include "../../../core/utils/macro.h"
 #include "../functions.h"
 
 bool swapchain_is_init(const Swapchain* swapchain) {
-    return swapchain->device != NULL && swapchain->handle != VK_NULL_HANDLE &&
-           swapchain->queue.handle != VK_NULL_HANDLE;
+    return swapchain->device != NULL && swapchain->handle != VK_NULL_HANDLE;
 }
 
 void swapchain_copy(const Swapchain* src, Swapchain* dst) {
@@ -106,12 +106,29 @@ SwapchainError swapchain_acquire_next_image(Swapchain* swapchain, VkSemaphore se
     return FAILED_SWAPCHAIN_ACQUIRE_IMAGE;
 }
 
-void swapchain_destroy(Swapchain* swapchain) {
+void swapchain_destroy(Swapchain* swapchain, bool keep_handle) {
     if (!swapchain_is_init(swapchain)) {
         return;
     }
+
     for (uint32_t i = 0; i < swapchain->init_image_view_count; i++) {
         vkDestroyImageView(swapchain->device->handle, swapchain->image_views[i], NULL);
     }
+    const Device* device = swapchain->device;
+    VkSwapchainKHR handle = swapchain->handle;
+    if (!keep_handle) {
+        swapchain_destroy_handle(swapchain);
+        return;
+    }
+    swapchain_clear(swapchain);
+    swapchain->device = device;
+    swapchain->handle = handle;
+}
+
+void swapchain_destroy_handle(Swapchain* swapchain) {
+    if (!swapchain_is_init(swapchain)) {
+        return;
+    }
     vkDestroySwapchainKHR(swapchain->device->handle, swapchain->handle, NULL);
+    swapchain_clear(swapchain);
 }

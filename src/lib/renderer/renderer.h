@@ -12,6 +12,7 @@ typedef struct Renderer {
 
 void renderer_clear(Renderer* renderer);
 void renderer_init(Renderer* renderer, RenderingContext* context);
+bool renderer_resize(Renderer* renderer);
 bool renderer_render(Renderer* renderer);
 
 #endif
