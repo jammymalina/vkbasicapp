@@ -27,7 +27,7 @@ typedef struct PhysicalDeviceFeatureItems {
 
 static inline void physical_device_feature_items_clear(PhysicalDeviceFeatureItems* items) {
     items->length = 0;
-    for (uint32_t i = 0; i < PHYSICAL_DEVICE_MAX_EXTENDED_FEATURES; i++) {
+    for (uint32_t i = 0; i < PHYSICAL_DEVICE_MAX_EXTENDED_FEATURES; ++i) {
         items->items[i].features = NULL;
         items->items[i].features_byte_size = 0;
         items->items[i].features_next_byte_offset = 0;

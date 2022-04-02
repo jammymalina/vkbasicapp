@@ -19,7 +19,7 @@ static inline void queue_descriptor_clear(QueueDescriptor* descriptor) {
     descriptor->count = 0;
 }
 
-void queue_descriptor_copy(const QueueDescriptor* src, QueueDescriptor* dest);
+void queue_descriptor_copy(const QueueDescriptor* src, QueueDescriptor* dst);
 void queue_descriptor_create_1p(QueueDescriptor* descriptor, uint32_t family_index, uint32_t count, float priority);
 void queue_descriptor_create_np(QueueDescriptor* descriptor, uint32_t family_index, uint32_t count, float* priorities);
 

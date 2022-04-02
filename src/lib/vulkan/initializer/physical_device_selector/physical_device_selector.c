@@ -52,7 +52,7 @@ static PhysicalDeviceError physical_device_load_extensions(PhysicalDevice* devic
             status, "Unable to enumerate physical device extensions", FAILED_ENUMERATE_PHYSICAL_DEVICE_EXTENSIONS);
 
         bool add_ext_status = true;
-        for (uint32_t i = 0; i < extension_count && add_ext_status; i++) {
+        for (uint32_t i = 0; i < extension_count && add_ext_status; ++i) {
             add_ext_status = physical_device_add_extension(device, extensions[i].extensionName);
         }
         if (!add_ext_status) {
@@ -120,10 +120,10 @@ static bool physical_device_selector_validate_extensions(
     const char* required_extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS], uint32_t required_extension_count,
     const PhysicalDevice* device) {
     uint32_t match_count = 0;
-    for (uint32_t i = 0; i < required_extension_count; i++) {
-        for (uint32_t j = 0; j < device->extension_count; j++) {
+    for (uint32_t i = 0; i < required_extension_count; ++i) {
+        for (uint32_t j = 0; j < device->extension_count; ++j) {
             if (string_equal(required_extensions[i], device->extensions[j])) {
-                match_count++;
+                ++match_count;
             }
         }
     }
@@ -212,7 +212,7 @@ static Rating physical_device_selector_rate_device(PhysicalDeviceSelector* selec
     }
 
     // Check memory
-    for (uint32_t i = 0; i < device->memory_properties.memoryHeapCount; i++) {
+    for (uint32_t i = 0; i < device->memory_properties.memoryHeapCount; ++i) {
         if (device->memory_properties.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
             if (device->memory_properties.memoryHeaps[i].size < selector->required_mem_size) {
                 return LOW_RATING;
@@ -227,7 +227,7 @@ static Rating physical_device_selector_rate_device(PhysicalDeviceSelector* selec
 
 static void physical_device_selector_destroy_devices(
     const PhysicalDeviceSelector* selector, PhysicalDevice* devices, uint32_t device_count) {
-    for (uint32_t i = 0; i < device_count; i++) {
+    for (uint32_t i = 0; i < device_count; ++i) {
         physical_device_destroy(&devices[i]);
     }
 }
@@ -243,19 +243,19 @@ static void physical_device_selector_finalize_device(
     dst->features.features = selector->required_features;
     physical_device_feature_items_copy(&selector->extended_features_chain, &dst->extended_features_chain, false);
 
-    for (uint32_t i = 0; i < src->queue_family_count; i++) {
+    for (uint32_t i = 0; i < src->queue_family_count; ++i) {
         dst->queue_families[i] = src->queue_families[i];
     }
     dst->queue_family_count = src->queue_family_count;
 
     bool portability_ext_available =
         selector->enable_portability_subset && physical_device_has_extension(src, "VK_KHR_portability_subset");
-    for (uint32_t i = 0; i < selector->required_extension_count; i++) {
+    for (uint32_t i = 0; i < selector->required_extension_count; ++i) {
         if (!physical_device_has_extension(dst, selector->required_extensions[i])) {
             physical_device_add_extension(dst, selector->required_extensions[i]);
         }
     }
-    for (uint32_t i = 0; i < selector->desired_extension_count; i++) {
+    for (uint32_t i = 0; i < selector->desired_extension_count; ++i) {
         if (physical_device_has_extension(src, selector->desired_extensions[i])) {
             if (!physical_device_has_extension(dst, selector->desired_extensions[i])) {
                 physical_device_add_extension(dst, selector->desired_extensions[i]);
@@ -292,24 +292,24 @@ PhysicalDeviceError physical_device_selector_select(PhysicalDeviceSelector* sele
     }
 
     PhysicalDevice devices[device_count];
-    for (uint32_t i = 0; i < device_count; i++) {
+    for (uint32_t i = 0; i < device_count; ++i) {
         physical_device_clear(&devices[i]);
     }
 
     status = PHYSICAL_DEVICE_NO_ERROR;
-    for (uint32_t i = 0; i < device_count && status == PHYSICAL_DEVICE_NO_ERROR; i++) {
+    for (uint32_t i = 0; i < device_count && status == PHYSICAL_DEVICE_NO_ERROR; ++i) {
         status = physical_device_selector_load_device_data(selector, &devices[i], device_handles[i]);
     }
     ASSERT_NO_ERROR(status, status);
 
-    for (uint32_t i = 0; i < device_count; i++) {
+    for (uint32_t i = 0; i < device_count; ++i) {
         Rating rating = physical_device_selector_rate_device(selector, &devices[i]);
         devices[i].rating = rating;
     }
 
     Rating max_rating = LOW_RATING;
     PhysicalDevice* best_device = NULL;
-    for (uint32_t i = 0; i < device_count; i++) {
+    for (uint32_t i = 0; i < device_count; ++i) {
         if (best_device == NULL || devices[i].rating > max_rating) {
             best_device = &devices[i];
             max_rating = devices[i].rating;

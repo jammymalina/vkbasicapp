@@ -21,7 +21,7 @@ static inline RenderingContextConfig rendering_context_config_default() {
     return (RenderingContextConfig){
         .frames_in_flight = 3,
         .clear_screen = true,
-        .clear_color = color_teal(),
+        .clear_color = color_black(),
         .depth_enabled = false,
         .render_timeout_ms = 1000000,
     };

@@ -32,7 +32,7 @@ static inline void rendering_context_clear(RenderingContext* rendering_context) 
     swapchain_clear(&rendering_context->swapchain);
     rendering_context->config = (RenderingContextConfig){0};
     rendering_context->current_frame = 0;
-    for (uint32_t i = 0; i < RENDERING_CONTEXT_MAX_FRAMES_IN_FLIGHT; i++) {
+    for (uint32_t i = 0; i < RENDERING_CONTEXT_MAX_FRAMES_IN_FLIGHT; ++i) {
         rendering_context->frame_resources[i].render_semaphore = VK_NULL_HANDLE;
         rendering_context->frame_resources[i].present_semaphore = VK_NULL_HANDLE;
         rendering_context->frame_resources[i].render_fence = VK_NULL_HANDLE;

@@ -17,7 +17,7 @@ void physical_device_feature_items_copy(
     const PhysicalDeviceFeatureItems* src, PhysicalDeviceFeatureItems* dst, bool clear_features) {
     physical_device_feature_items_destroy(dst);
 
-    for (uint32_t i = 0; i < src->length; i++) {
+    for (uint32_t i = 0; i < src->length; ++i) {
         physical_device_feature_items_add(
             dst, src->items[i].features, src->items[i].features_byte_size, src->items[i].features_next_byte_offset);
         if (clear_features) {
@@ -62,7 +62,7 @@ bool physical_device_feature_items_compare(
         return false;
     }
 
-    for (uint32_t i = 0; i < required_features->length; i++) {
+    for (uint32_t i = 0; i < required_features->length; ++i) {
         if (required_features->items[i].features_byte_size != device_features->items[i].features_byte_size) {
             return false;
         }
@@ -99,7 +99,7 @@ bool physical_device_feature_items_compare(
 }
 
 void physical_device_feature_items_destroy(PhysicalDeviceFeatureItems* items) {
-    for (uint32_t i = 0; i < items->length; i++) {
+    for (uint32_t i = 0; i < items->length; ++i) {
         mem_free(items->items[i].features);
     }
     physical_device_feature_items_clear(items);
@@ -115,7 +115,7 @@ bool physical_device_add_extension(PhysicalDevice* device, const char* extension
 }
 
 bool physical_device_has_extension(const PhysicalDevice* device, const char* extension_name) {
-    for (uint32_t i = 0; i < device->extension_count; i++) {
+    for (uint32_t i = 0; i < device->extension_count; ++i) {
         if (string_equal(extension_name, device->extensions[i])) {
             return true;
         }

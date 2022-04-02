@@ -9,7 +9,7 @@ void device_clear(Device* device) {
     device->loaded_device_functions = false;
     device->queue_descriptor_count = 0;
 
-    for (uint32_t i = 0; i < DEVICE_MAX_QUEUE_DESCRIPTORS; i++) {
+    for (uint32_t i = 0; i < DEVICE_MAX_QUEUE_DESCRIPTORS; ++i) {
         queue_descriptor_clear(&device->queue_descriptors[i]);
     }
 }
@@ -19,7 +19,7 @@ bool device_is_init(const Device* device) {
 }
 
 const QueueDescriptor* device_get_queue_descriptor(const Device* device, uint32_t family_index) {
-    for (uint32_t i = 0; i < device->queue_descriptor_count; i++) {
+    for (uint32_t i = 0; i < device->queue_descriptor_count; ++i) {
         if (device->queue_descriptors[i].family_index == family_index) {
             return &device->queue_descriptors[i];
         }
@@ -38,12 +38,12 @@ bool device_get_queues(
     }
 
     Queue* iter = queues;
-    for (uint32_t i = start_queue_index; i < start_queue_index + count; i++) {
+    for (uint32_t i = start_queue_index; i < start_queue_index + count; ++i) {
         VkQueue handle;
         queue_clear(iter);
         vkGetDeviceQueue(device->handle, family_index, i, &handle);
         *iter = (Queue){.family_index = family_index, .handle = handle, .queue_index = i};
-        iter++;
+        ++iter;
     }
 
     return true;

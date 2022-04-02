@@ -59,8 +59,8 @@ static inline size_t count_bits_uint32_t(uint32_t n) {
 void* mem_alloc(size_t size);
 void* mem_realloc(void* mem, size_t size);
 void mem_free(void* data);
-void mem_copy(const void* src, void* dest, size_t length);
-void* mem_move(const void* src, void* dest, size_t length);
+void mem_copy(const void* src, void* dst, size_t length);
+void* mem_move(const void* src, void* dst, size_t length);
 int mem_cmp(const void* m1, const void* m2, size_t length);
 void mem_set(void* m1, int value, size_t length);
 

@@ -11,10 +11,10 @@ void command_pool_clear(CommandPool* pool) {
     pool->queue_family_index = UINT32_MAX;
     pool->primary_buffer_count = 0;
     pool->secondary_buffer_count = 0;
-    for (uint32_t i = 0; i < COMMAND_POOL_MAX_BUFFERS; i++) {
+    for (uint32_t i = 0; i < COMMAND_POOL_MAX_BUFFERS; ++i) {
         pool->primary_buffers[i] = VK_NULL_HANDLE;
     }
-    for (uint32_t i = 0; i < COMMAND_POOL_MAX_BUFFERS; i++) {
+    for (uint32_t i = 0; i < COMMAND_POOL_MAX_BUFFERS; ++i) {
         pool->secondary_buffers[i] = VK_NULL_HANDLE;
     }
 }
@@ -71,10 +71,10 @@ void command_pool_copy(const CommandPool* src, CommandPool* dst, bool destroy_ds
     dst->queue_family_index = src->queue_family_index;
     dst->primary_buffer_count = src->primary_buffer_count;
     dst->secondary_buffer_count = src->secondary_buffer_count;
-    for (uint32_t i = 0; i < src->primary_buffer_count; i++) {
+    for (uint32_t i = 0; i < src->primary_buffer_count; ++i) {
         dst->primary_buffers[i] = src->primary_buffers[i];
     }
-    for (uint32_t i = 0; i < dst->secondary_buffer_count; i++) {
+    for (uint32_t i = 0; i < dst->secondary_buffer_count; ++i) {
         dst->secondary_buffers[i] = src->secondary_buffers[i];
     }
 }
@@ -147,7 +147,7 @@ void command_pool_free_buffers(CommandPool* pool) {
     if (pool->secondary_buffer_count > 0) {
         vkFreeCommandBuffers(device, pool->handle, pool->secondary_buffer_count, pool->secondary_buffers);
         pool->secondary_buffer_count = 0;
-        for (uint32_t i = 0; i < COMMAND_POOL_MAX_BUFFERS; i++) {
+        for (uint32_t i = 0; i < COMMAND_POOL_MAX_BUFFERS; ++i) {
             pool->secondary_buffers[i] = VK_NULL_HANDLE;
         }
     }
@@ -155,7 +155,7 @@ void command_pool_free_buffers(CommandPool* pool) {
     if (pool->primary_buffer_count > 0) {
         vkFreeCommandBuffers(device, pool->handle, pool->primary_buffer_count, pool->primary_buffers);
         pool->primary_buffer_count = 0;
-        for (uint32_t i = 0; i < COMMAND_POOL_MAX_BUFFERS; i++) {
+        for (uint32_t i = 0; i < COMMAND_POOL_MAX_BUFFERS; ++i) {
             pool->primary_buffers[i] = VK_NULL_HANDLE;
         }
     }

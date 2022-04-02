@@ -63,7 +63,7 @@ static bool instance_builder_load_default_extensions(InstanceBuilder* builder) {
 }
 
 static bool instance_builder_check_layers(const InstanceBuilder* builder) {
-    for (uint32_t i = 0; i < builder->layer_count; i++) {
+    for (uint32_t i = 0; i < builder->layer_count; ++i) {
         if (!system_info_is_layer_available(builder->system, builder->layers[i])) {
             return false;
         }
@@ -72,7 +72,7 @@ static bool instance_builder_check_layers(const InstanceBuilder* builder) {
 }
 
 static bool instance_builder_check_extensions(const InstanceBuilder* builder) {
-    for (uint32_t i = 0; i < builder->extension_count; i++) {
+    for (uint32_t i = 0; i < builder->extension_count; ++i) {
         if (!system_info_is_extension_available(builder->system, builder->extensions[i])) {
             return false;
         }

@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 
+#include "../core/fs/path.h"
 #include "../renderer/renderer.h"
 #include "../vulkan/core/command/command_context.h"
 #include "../vulkan/core/context/context.h"
@@ -10,6 +11,7 @@
 #include "../window/app_window.h"
 
 typedef struct App {
+    char basepath[PATH_MAX_SIZE];
     AppWindow window;
     Context context;
     CommandContext command_context;
@@ -19,6 +21,7 @@ typedef struct App {
 } App;
 
 static inline void app_clear(App* app) {
+    string_copy("", app->basepath, PATH_MAX_SIZE);
     app_window_clear(&app->window);
     context_clear(&app->context);
     command_context_clear(&app->command_context);

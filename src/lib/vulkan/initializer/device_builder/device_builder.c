@@ -29,7 +29,7 @@ DeviceError device_builder_build(DeviceBuilder* builder, Device* device) {
 
     if (builder->custom_queue_descriptor_count == 0) {
         bool desc_status = true;
-        for (uint32_t i = 0; i < builder->physical_device->queue_family_count && desc_status; i++) {
+        for (uint32_t i = 0; i < builder->physical_device->queue_family_count && desc_status; ++i) {
             QueueDescriptor descriptor;
             queue_descriptor_create_1p(&descriptor, i, 1, 1.0);
             device_builder_add_custom_queue_descriptor(builder, &descriptor);
@@ -40,7 +40,7 @@ DeviceError device_builder_build(DeviceBuilder* builder, Device* device) {
     }
 
     VkDeviceQueueCreateInfo queue_create_infos[builder->custom_queue_descriptor_count];
-    for (uint32_t i = 0; i < builder->custom_queue_descriptor_count; i++) {
+    for (uint32_t i = 0; i < builder->custom_queue_descriptor_count; ++i) {
         queue_create_infos[i] = (VkDeviceQueueCreateInfo){
             .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
             .pNext = NULL,
@@ -58,7 +58,7 @@ DeviceError device_builder_build(DeviceBuilder* builder, Device* device) {
         }
     }
     const char* extensions[extension_count + 1];
-    for (uint32_t i = 0; i < extension_count; i++) {
+    for (uint32_t i = 0; i < extension_count; ++i) {
         extensions[i] = builder->physical_device->extensions[i];
     }
     if (!physical_device_has_extension(builder->physical_device, VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
@@ -97,7 +97,7 @@ DeviceError device_builder_build(DeviceBuilder* builder, Device* device) {
     }
     device->loaded_device_functions = true;
 
-    for (uint32_t i = 0; i < builder->custom_queue_descriptor_count; i++) {
+    for (uint32_t i = 0; i < builder->custom_queue_descriptor_count; ++i) {
         queue_descriptor_copy(&builder->custom_queue_descriptors[i], &device->queue_descriptors[i]);
     }
     device->queue_descriptor_count = builder->custom_queue_descriptor_count;

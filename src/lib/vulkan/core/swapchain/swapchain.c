@@ -21,10 +21,10 @@ void swapchain_copy(const Swapchain* src, Swapchain* dst) {
 
     dst->init_images = src->init_images;
     dst->init_image_view_count = src->init_image_view_count;
-    for (uint32_t i = 0; i < src->image_count; i++) {
+    for (uint32_t i = 0; i < src->image_count; ++i) {
         dst->images[i] = src->images[i];
     }
-    for (uint32_t i = 0; i < src->init_image_view_count; i++) {
+    for (uint32_t i = 0; i < src->init_image_view_count; ++i) {
         dst->image_views[i] = src->image_views[i];
     }
 }
@@ -57,7 +57,7 @@ SwapchainError swapchain_load_image_views(Swapchain* swapchain) {
 
     swapchain->init_image_view_count = 0;
     VkResult status;
-    for (uint32_t i = 0; i < swapchain->image_count; i++) {
+    for (uint32_t i = 0; i < swapchain->image_count; ++i) {
         VkImageViewCreateInfo view_info = {
             .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
             .pNext = 0,
@@ -111,7 +111,7 @@ void swapchain_destroy(Swapchain* swapchain, bool keep_handle) {
         return;
     }
 
-    for (uint32_t i = 0; i < swapchain->init_image_view_count; i++) {
+    for (uint32_t i = 0; i < swapchain->init_image_view_count; ++i) {
         vkDestroyImageView(swapchain->device->handle, swapchain->image_views[i], NULL);
     }
     const Device* device = swapchain->device;

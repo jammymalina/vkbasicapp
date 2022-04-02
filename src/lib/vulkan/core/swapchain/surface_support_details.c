@@ -43,10 +43,10 @@ SurfaceSupportError surface_support_details_load(SurfaceSupportDetails* details,
     details->format_count = format_count;
     details->present_mode_count = present_mode_count;
 
-    for (uint32_t i = 0; i < details->format_count; i++) {
+    for (uint32_t i = 0; i < details->format_count; ++i) {
         details->formats[i] = formats[i];
     }
-    for (uint32_t i = 0; i < details->present_mode_count; i++) {
+    for (uint32_t i = 0; i < details->present_mode_count; ++i) {
         details->present_modes[i] = present_modes[i];
     }
 
@@ -58,8 +58,8 @@ VkSurfaceFormatKHR surface_support_details_find_format(const SurfaceSupportDetai
     if (details->device == NULL || details->format_count == 0) {
         return (VkSurfaceFormatKHR){0};
     }
-    for (uint32_t desired_index = 0; desired_index < desired_format_count; desired_index++) {
-        for (uint32_t avail_index = 0; avail_index < details->format_count; avail_index++) {
+    for (uint32_t desired_index = 0; desired_index < desired_format_count; ++desired_index) {
+        for (uint32_t avail_index = 0; avail_index < details->format_count; ++avail_index) {
             VkSurfaceFormatKHR desired_format = desired_formats[desired_index];
             VkSurfaceFormatKHR avail_format = details->formats[avail_index];
             if (desired_format.format == avail_format.format && desired_format.colorSpace == avail_format.colorSpace) {
@@ -93,8 +93,8 @@ VkExtent2D surface_support_details_find_extent(
 
 VkPresentModeKHR surface_support_details_find_present_mode(
     const SurfaceSupportDetails* details, const VkPresentModeKHR* desired_present_modes, uint32_t desired_modes_count) {
-    for (uint32_t desired_index = 0; desired_index < desired_modes_count; desired_index++) {
-        for (uint32_t avail_index = 0; avail_index < details->present_mode_count; avail_index++) {
+    for (uint32_t desired_index = 0; desired_index < desired_modes_count; ++desired_index) {
+        for (uint32_t avail_index = 0; avail_index < details->present_mode_count; ++avail_index) {
             if (desired_present_modes[desired_index] == details->present_modes[avail_index]) {
                 return desired_present_modes[desired_index];
             }

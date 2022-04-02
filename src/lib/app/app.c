@@ -6,10 +6,15 @@ void app_init(App* app) {
     // TODO: Add ini configuration for the app
     AppWindowBuilder builder = {0};
     app_window_builder_clear(&builder);
-    builder.width = 1280;
-    builder.height = 720;
+    builder.width = 1920;
+    builder.height = 1080;
     builder.title = "Basic app";
     app_window_builder_build(&builder, &app->window);
+    if (!path_get_basepath(app->basepath)) {
+        log_error("Unable to get basepath");
+        return;
+    }
+    log_info("Application basepath %s", app->basepath);
 
     ContextError context_status = context_init(&app->context, app->window.handle);
     ASSERT_NO_ERROR_LOG(context_status, ContextError, context_error_to_string);

@@ -107,7 +107,7 @@ RenderingContextError rendering_context_init(
         .flags = VK_FENCE_CREATE_SIGNALED_BIT,
     };
     VkResult create_status;
-    for (uint32_t i = 0; i < rendering_context->config.frames_in_flight; i++) {
+    for (uint32_t i = 0; i < rendering_context->config.frames_in_flight; ++i) {
         RenderFrameResources* resources = &rendering_context->frame_resources[i];
 
         create_status = vkCreateSemaphore(device, &semaphore_info, NULL, &resources->render_semaphore);
@@ -318,7 +318,7 @@ void rendering_context_destroy(RenderingContext* rendering_context) {
     }
     VkDevice device = rendering_context_get_device(rendering_context);
     vkDeviceWaitIdle(device);
-    for (uint32_t i = 0; i < RENDERING_CONTEXT_MAX_FRAMES_IN_FLIGHT; i++) {
+    for (uint32_t i = 0; i < RENDERING_CONTEXT_MAX_FRAMES_IN_FLIGHT; ++i) {
         RenderFrameResources* resources = &rendering_context->frame_resources[i];
         if (resources->render_semaphore != VK_NULL_HANDLE) {
             vkDestroySemaphore(device, resources->render_semaphore, NULL);
