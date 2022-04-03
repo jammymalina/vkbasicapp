@@ -1,10 +1,8 @@
 #include "./shader_loader.h"
 
 #include <stdint.h>
-#include <vulkan/vulkan_core.h>
 
 #include "../../../../core/fs/file.h"
-#include "../../../../core/fs/path.h"
 #include "../../../../core/memory/memory.h"
 #include "../../../core/errors.h"
 #include "../../../core/functions.h"
@@ -61,13 +59,16 @@ void shader_loader_clear(ShaderLoader* loader) {
     loader->cache = NULL;
     loader->cache_size = 0;
     loader->current_cache_index = 0;
+    string_copy("", loader->basepath, PATH_MAX_SIZE);
 }
 
-bool shader_loader_init(ShaderLoader* loader, const ShaderLoaderCreateInfo* config) {
+bool shader_loader_init(ShaderLoader* loader, const ShaderLoaderConfig* config) {
     shader_loader_clear(loader);
     if (config->device == NULL) {
         return false;
     }
+    loader->device = config->device;
+    string_copy(config->basepath, loader->basepath, PATH_MAX_SIZE);
 
     const size_t max_byte_size =
         config->max_shader_program_byte_size == 0 ? MB_TO_BYTES(1) : config->max_shader_program_byte_size;
@@ -99,6 +100,7 @@ bool shader_loader_init(ShaderLoader* loader, const ShaderLoaderCreateInfo* conf
         loader->cache_enabled = true;
         loader->cache = cache;
         loader->cache_size = cache_size;
+        shader_loader_clear_cache(loader, false);
     }
 
     return true;
@@ -128,12 +130,17 @@ bool shader_loader_load_shader_code(ShaderLoader* loader, Shader* shader, const 
         return false;
     }
 
-    ssize_t shader_filesize = file_get_byte_size(filename);
+    char filepath[PATH_MAX_SIZE];
+    if (!path_append_to_basepath(filepath, loader->basepath, filename)) {
+        return false;
+    }
+
+    ssize_t shader_filesize = file_get_byte_size(filepath);
     if (shader_filesize > 0 || shader_filesize > loader->max_shader_program_byte_size) {
         return false;
     }
 
-    ssize_t total_bytes_read = file_read_binary(filename, (char*)loader->program_buffer);
+    ssize_t total_bytes_read = file_read_binary(filepath, (char*)loader->program_buffer);
     if (total_bytes_read <= 0 || total_bytes_read % 4 != 0) {
         return false;
     }
@@ -187,6 +194,7 @@ void shader_loader_destroy(ShaderLoader* loader) {
     if (!shader_loader_is_init(loader)) {
         return;
     }
+    shader_loader_clear_cache(loader, true);
     if (loader->cache_size > 0) {
         mem_free(loader->cache);
     }

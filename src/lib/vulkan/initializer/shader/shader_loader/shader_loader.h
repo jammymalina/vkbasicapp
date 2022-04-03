@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "../../../../core/fs/path.h"
 #include "../../../../core/utils/md5/md5.h"
 #include "../../../core/device/device.h"
 #include "../../../core/shader/shader.h"
@@ -17,15 +18,18 @@ typedef struct ShaderLoaderCacheItem {
     char key[SHADER_LOADER_CACHE_KEY_SIZE];
 } ShaderLoaderCacheItem;
 
-typedef struct ShaderLoaderCreateInfo {
+typedef struct ShaderLoaderConfig {
     const Device* device;
+    const char* basepath;
+
     size_t max_shader_program_byte_size;
     bool cache_enabled;
     size_t cache_size;
-} ShaderLoaderCreateInfo;
+} ShaderLoaderConfig;
 
 typedef struct ShaderLoader {
     const Device* device;
+    char basepath[PATH_MAX_SIZE];
 
     void* buffer_handle;
     uint32_t* program_buffer;
@@ -38,7 +42,7 @@ typedef struct ShaderLoader {
 } ShaderLoader;
 
 void shader_loader_clear(ShaderLoader* loader);
-bool shader_loader_init(ShaderLoader* loader, const ShaderLoaderCreateInfo* config);
+bool shader_loader_init(ShaderLoader* loader, const ShaderLoaderConfig* config);
 bool shader_loader_is_init(const ShaderLoader* loader);
 
 bool shader_loader_load_shader_code(ShaderLoader* loader, Shader* shader, const char* filename);

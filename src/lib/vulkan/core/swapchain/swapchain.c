@@ -1,7 +1,6 @@
 #include "./swapchain.h"
 
 #include <stdint.h>
-#include <vulkan/vulkan_core.h>
 
 #include "../../../core/utils/macro.h"
 #include "../functions.h"
@@ -94,8 +93,8 @@ SwapchainError swapchain_acquire_next_image(Swapchain* swapchain, VkSemaphore se
         return FAILED_SWAPCHAIN_ACQUIRE_IMAGE;
     }
 
-    VkResult status = vkAcquireNextImageKHR(swapchain->device->handle, swapchain->handle,
-        TIME_MS_TO_NS(((uint64_t)10000)), semaphore, NULL, &swapchain->image_index);
+    VkResult status = vkAcquireNextImageKHR(
+        swapchain->device->handle, swapchain->handle, TIME_MS_TO_NS(10000), semaphore, NULL, &swapchain->image_index);
     if (status == VK_SUCCESS) {
         return SWAPCHAIN_NO_ERROR;
     }

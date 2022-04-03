@@ -6,6 +6,8 @@
 
 #include "../../../core/string/string.h"
 
+#define SHADER_TYPES_TOTAL 7
+
 typedef enum ShaderType {
     SHADER_TYPE_VERTEX = 1,
     SHADER_TYPE_FRAGMENT = 2,
@@ -15,13 +17,6 @@ typedef enum ShaderType {
     SHADER_TYPE_TESS_EVAL = 32,
     SHADER_TYPE_UNDEFINED = 64
 } ShaderType;
-
-typedef enum ShaderProgramType {
-    SHADER_PROGRAM_TYPE_UNDEFINED = -1,
-    SHADER_PROGRAM_TYPE_GRAPHICS,
-    SHADER_PROGRAM_TYPE_COMPUTE,
-    SHADER_PROGRAM_TYPES_TOTAL
-} ShaderProgramType;
 
 #define SHADER_TYPE_GROUP_GRAPHICS (SHADER_TYPE_VERTEX | SHADER_TYPE_FRAGMENT)
 
