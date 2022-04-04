@@ -7,6 +7,7 @@
 #include "../../../renderer/core/rendering_context_config.h"
 #include "../command/command_context.h"
 #include "../errors.h"
+#include "../shader/pipeline_repository.h"
 #include "../swapchain/swapchain.h"
 
 #define RENDERING_CONTEXT_MAX_FRAMES_IN_FLIGHT 8
@@ -19,6 +20,7 @@ typedef struct RenderFrameResources {
 
 typedef struct RenderingContext {
     CommandContext* command_context;
+    const PipelineRepository* pipeline_repository;
     Swapchain swapchain;
 
     uint32_t current_frame;
@@ -29,6 +31,7 @@ typedef struct RenderingContext {
 
 static inline void rendering_context_clear(RenderingContext* rendering_context) {
     rendering_context->command_context = NULL;
+    rendering_context->pipeline_repository = NULL;
     swapchain_clear(&rendering_context->swapchain);
     rendering_context->config = (RenderingContextConfig){0};
     rendering_context->current_frame = 0;
@@ -39,8 +42,8 @@ static inline void rendering_context_clear(RenderingContext* rendering_context) 
     }
 }
 
-RenderingContextError rendering_context_init(
-    RenderingContext* rendering_context, CommandContext* context, RenderingContextConfig config);
+RenderingContextError rendering_context_init(RenderingContext* rendering_context, CommandContext* context,
+    const PipelineRepository* repository, RenderingContextConfig config);
 
 RenderingContextError rendering_context_resize(RenderingContext* rendering_context);
 

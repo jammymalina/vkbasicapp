@@ -20,6 +20,11 @@ typedef enum ShaderType {
 
 #define SHADER_TYPE_GROUP_GRAPHICS (SHADER_TYPE_VERTEX | SHADER_TYPE_FRAGMENT)
 
+typedef enum PipelineType {
+    PIPELINE_TYPE_GRAPHICS,
+    PIPELINE_TYPE_COMPUTE,
+} PipelineType;
+
 typedef enum ShaderBindingType {
     SHADER_BINDING_TYPE_UNDEFINED = -1,
     SHADER_BINDING_TYPE_UNIFORM,

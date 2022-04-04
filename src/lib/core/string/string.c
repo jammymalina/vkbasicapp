@@ -23,6 +23,9 @@ bool string_copy(const char* src, char* dst, size_t max_dst_length) {
             break;
         }
     }
+    // ensures that the dst has always terminating character
+    dst[max_dst_length - 1] = '\0';
+
     return src[i] == '\0';
 }
 

@@ -79,10 +79,15 @@ static RenderingContextError rendering_context_recreate_swapchain(
     return RENDERING_CONTEXT_NO_ERROR;
 }
 
-RenderingContextError rendering_context_init(
-    RenderingContext* rendering_context, CommandContext* context, RenderingContextConfig config) {
+RenderingContextError rendering_context_init(RenderingContext* rendering_context, CommandContext* context,
+    const PipelineRepository* pipeline_repository, RenderingContextConfig config) {
     rendering_context_clear(rendering_context);
+    if (context == NULL || pipeline_repository == NULL) {
+        return RENDERING_CONTEXT_INIT_ERROR;
+    }
+
     rendering_context->command_context = context;
+    rendering_context->pipeline_repository = pipeline_repository;
 
     VkDevice device = rendering_context_get_device(rendering_context);
 

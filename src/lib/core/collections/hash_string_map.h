@@ -50,9 +50,9 @@ static inline unsigned long hash_string_2(const char* key) {
     return hash;
 }
 
-static inline void hash_string_key_clear_(char key[HASH_KEY_MAX_SIZE]) { mem_set(key, '\0', HASH_KEY_MAX_SIZE); }
+static inline void hash_string_key_clear_(char* key) { mem_set(key, '\0', HASH_KEY_MAX_SIZE); }
 
-static inline void hash_string_key_set_(char key[HASH_KEY_MAX_SIZE], const char* key_value) {
+static inline void hash_string_key_set_(char* key, const char* key_value) {
     hash_string_key_clear_(key);
 
     for (size_t i = 0; i < HASH_KEY_MAX_SIZE; ++i) {
