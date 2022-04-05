@@ -14,12 +14,12 @@ typedef struct Shader {
     ShaderType type;
 } Shader;
 
-static void shader_clear(Shader* shader) {
+static inline void shader_clear(Shader* shader) {
     shader->handle = VK_NULL_HANDLE;
     shader->type = SHADER_TYPE_UNDEFINED;
 }
 
-static void shader_copy(const Shader* src, Shader* dst) {
+static inline void shader_copy(const Shader* src, Shader* dst) {
     dst->handle = src->handle;
     dst->type = src->type;
 }

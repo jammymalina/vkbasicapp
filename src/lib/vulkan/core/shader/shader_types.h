@@ -48,6 +48,27 @@ static inline ShaderType shader_extension_to_type(const char* extension) {
     return SHADER_TYPE_UNDEFINED;
 }
 
+static inline size_t shader_type_to_index(ShaderType type) {
+    switch (type) {
+        case SHADER_TYPE_VERTEX:
+            return 0;
+        case SHADER_TYPE_FRAGMENT:
+            return 1;
+        case SHADER_TYPE_GEOMETRY:
+            return 2;
+        case SHADER_TYPE_COMPUTE:
+            return 3;
+        case SHADER_TYPE_TESS_CTRL:
+            return 4;
+        case SHADER_TYPE_TESS_EVAL:
+            return 5;
+        case SHADER_TYPE_UNDEFINED:
+            return 6;
+        default:
+            return 0;
+    }
+}
+
 static inline const char* shader_type_to_extension(ShaderType type) {
     switch (type) {
         case SHADER_TYPE_VERTEX:

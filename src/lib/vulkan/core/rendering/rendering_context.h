@@ -50,6 +50,8 @@ RenderingContextError rendering_context_resize(RenderingContext* rendering_conte
 RenderingContextError rendering_context_start_frame(RenderingContext* rendering_context);
 RenderingContextError rendering_context_end_frame(RenderingContext* rendering_context);
 
+void rendering_context_render(RenderingContext* rendering_context);
+
 void rendering_context_destroy(RenderingContext* rendering_context);
 
 #endif

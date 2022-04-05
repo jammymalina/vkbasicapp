@@ -230,6 +230,21 @@ RenderingContextError rendering_context_start_frame(RenderingContext* rendering_
     vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, 0, 0, NULL, 0, NULL, 1, &image_memory_barrier);
 
+    VkViewport viewport = {0};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = (float)swapchain->extent.width;
+    viewport.height = (float)swapchain->extent.height;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    VkRect2D scissor = {0};
+    scissor.offset = (VkOffset2D){0, 0};
+    scissor.extent = swapchain->extent;
+
+    vkCmdSetViewport(command_buffer, 0, 1, &viewport);
+    vkCmdSetScissor(command_buffer, 0, 1, &scissor);
+
     vkCmdBeginRenderingKHR(command_buffer, &rendering_info);
 
     return RENDERING_CONTEXT_NO_ERROR;
@@ -315,6 +330,23 @@ RenderingContextError rendering_context_end_frame(RenderingContext* rendering_co
         (rendering_context->current_frame + 1) % rendering_context->config.frames_in_flight;
 
     return RENDERING_CONTEXT_NO_ERROR;
+}
+
+void rendering_context_render(RenderingContext* rendering_context) {
+    Swapchain* swapchain = &rendering_context->swapchain;
+
+    CommandBufferInfo buffer_info = {
+        .buffer_index = swapchain->image_index,
+        .secondary = false,
+    };
+    VkCommandBuffer command_buffer =
+        command_context_get_command_buffer(rendering_context->command_context, "_render", &buffer_info);
+
+    const PipelineRepository* pipeline_repo = rendering_context->pipeline_repository;
+    const GraphicsPipeline* testp = pipeline_repository_get_graphics_pipeline(pipeline_repo, "test");
+    vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, testp->handle);
+
+    vkCmdDraw(command_buffer, 3, 1, 0, 0);
 }
 
 void rendering_context_destroy(RenderingContext* rendering_context) {

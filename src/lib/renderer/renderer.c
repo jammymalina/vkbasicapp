@@ -21,6 +21,7 @@ bool renderer_render(Renderer* renderer) {
     }
 
     // TODO: DRAW STUFF
+    rendering_context_render(context);
 
     status = rendering_context_end_frame(context);
     if (status == RENDERING_CONTEXT_REFRESHING) {

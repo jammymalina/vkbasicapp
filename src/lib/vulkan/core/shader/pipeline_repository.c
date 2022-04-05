@@ -1,7 +1,7 @@
 #include "./pipeline_repository.h"
 
-#include "graphics_pipeline.h"
-#include "shader_types.h"
+#include "./graphics_pipeline.h"
+#include "./shader_types.h"
 
 void pipeline_repository_clear(PipelineRepository* repository) { hash_string_map_clear(&repository->pipeline_map); }
 
@@ -44,9 +44,7 @@ void pipeline_repository_destroy(PipelineRepository* repository) {
         for (size_t i = 0; i < current_processed; ++i) {
             if (buffer[i]->type == PIPELINE_TYPE_GRAPHICS) {
                 GraphicsPipeline* pipeline = &buffer[i]->graphics_pipeline;
-                if (graphics_pipeline_is_init(pipeline)) {
-                    vkDestroyPipeline(pipeline->device->handle, pipeline->handle, NULL);
-                }
+                graphics_pipeline_destroy(pipeline);
             }
         }
     }

@@ -73,7 +73,7 @@ bool shader_loader_init(ShaderLoader* loader, const ShaderLoaderConfig* config) 
     const size_t max_byte_size =
         config->max_shader_program_byte_size == 0 ? MB_TO_BYTES(1) : config->max_shader_program_byte_size;
     loader->buffer_handle = mem_alloc(max_byte_size + 3);
-    ASSERT_ALLOC(loader->program_buffer, "Unable to allocate shader loader", false);
+    ASSERT_ALLOC(loader->buffer_handle, "Unable to allocate shader loader", false);
 
     loader->program_buffer = (uint32_t*)ALIGN_MEM(loader->buffer_handle, 4);
 
@@ -136,7 +136,7 @@ bool shader_loader_load_shader_code(ShaderLoader* loader, Shader* shader, const 
     }
 
     ssize_t shader_filesize = file_get_byte_size(filepath);
-    if (shader_filesize > 0 || shader_filesize > loader->max_shader_program_byte_size) {
+    if (shader_filesize <= 0 || shader_filesize > loader->max_shader_program_byte_size) {
         return false;
     }
 
@@ -156,6 +156,7 @@ bool shader_loader_load_shader_code(ShaderLoader* loader, Shader* shader, const 
 
     ASSERT_VK(vkCreateShaderModule(loader->device->handle, &module_info, NULL, &module), false);
     shader->handle = module;
+    shader->type = shader_extension_to_type(extension);
 
     if (loader->cache_enabled) {
         shader_loader_cache_store_shader(loader, shader, filename);
@@ -171,7 +172,7 @@ void shader_loader_clear_cache(ShaderLoader* loader, bool destroy_shaders) {
 
     for (size_t i = 0; i < loader->cache_size; ++i) {
         ShaderLoaderCacheItem* item = &loader->cache[i];
-        if (destroy_shaders && item->value.handle == VK_NULL_HANDLE) {
+        if (destroy_shaders && item->value.handle != VK_NULL_HANDLE) {
             vkDestroyShaderModule(loader->device->handle, item->value.handle, NULL);
         }
         string_copy("", item->key, SHADER_LOADER_CACHE_KEY_SIZE);

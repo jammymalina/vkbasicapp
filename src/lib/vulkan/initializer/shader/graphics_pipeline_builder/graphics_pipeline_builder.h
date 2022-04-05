@@ -42,8 +42,14 @@ typedef struct GraphicsPipelineBuilder {
 
     RenderStateFlags render_state_flags;
     VertexLayoutType vertex_layout_type;
+    VkPrimitiveTopology topology;
     const char** shader_files;
     size_t shader_file_count;
+
+    uint32_t color_attachment_count;
+    const VkFormat* color_attachments;
+    VkFormat depth_attachment_format;
+    VkFormat stencil_attachment_format;
 
     ShaderLoader shader_loader;
     VkPipelineCache pipeline_cache;
