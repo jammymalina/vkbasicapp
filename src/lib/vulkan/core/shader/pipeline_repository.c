@@ -18,20 +18,10 @@ bool pipeline_repository_add_graphics_pipeline(
         return false;
     }
 
-    bool add_status = hash_string_map_add(&repository->pipeline_map, name, (PipelineRecord){0});
-    if (!add_status) {
-        return false;
-    }
+    PipelineRecord record = {.type = PIPELINE_TYPE_GRAPHICS, .graphics_pipeline = *pipeline};
+    bool add_status = hash_string_map_add(&repository->pipeline_map, name, record);
 
-    PipelineRecord* record = hash_string_map_get_reference(&repository->pipeline_map, name);
-    if (record == NULL) {
-        return false;
-    }
-
-    record->type = PIPELINE_TYPE_GRAPHICS;
-    graphics_pipeline_copy(pipeline, &record->graphics_pipeline);
-
-    return true;
+    return add_status;
 }
 
 const GraphicsPipeline* const pipeline_repository_get_graphics_pipeline(
