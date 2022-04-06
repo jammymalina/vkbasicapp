@@ -2,6 +2,7 @@
 
 #include "../renderer/core/rendering_context_config.h"
 #include "../vulkan/initializer/shader/graphics_pipeline_builder/graphics_pipeline_builder.h"
+#include "./app_builder.h"
 
 static bool init_shaders(App* app) {
     GraphicsPipelineBuilder builder;
@@ -38,18 +39,18 @@ static bool init_shaders(App* app) {
 }
 
 void app_init(App* app) {
-    // TODO: Add ini configuration for the app
-    AppWindowBuilder builder = {0};
-    app_window_builder_clear(&builder);
-    builder.width = 1920;
-    builder.height = 1080;
-    builder.title = "Basic app";
-    app_window_builder_build(&builder, &app->window);
     if (!path_get_basepath(app->basepath)) {
         log_error("Unable to get basepath");
         return;
     }
-    log_info("Application basepath %s", app->basepath);
+
+    char config_file[PATH_MAX_SIZE];
+    path_append_to_basepath(config_file, app->basepath, "config/app.ini");
+    AppBuilder app_builder = {0};
+    bool status = app_builder_build(&app_builder, config_file, app);
+    if (!status) {
+        return;
+    }
 
     ContextError context_status = context_init(&app->context, app->window.handle);
     ASSERT_SUCCESS_LOG(context_status, ContextError, context_error_to_string);
@@ -57,7 +58,7 @@ void app_init(App* app) {
     PipelineRepositoryConfig pipeline_repo_config = {
         .reserved_size = 100,
     };
-    bool status = pipeline_repository_init(&app->pipeline_repository, &pipeline_repo_config);
+    status = pipeline_repository_init(&app->pipeline_repository, &pipeline_repo_config);
     if (!status) {
         log_error("Unable to initialize pipeline repository");
         return;

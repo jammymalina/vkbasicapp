@@ -17,14 +17,11 @@ bool string_copy(const char* src, char* dst, size_t max_dst_length) {
     }
 
     size_t i;
-    for (i = 0; i < max_dst_length; ++i) {
+    for (i = 0; i < max_dst_length - 1 && src[i] != '\0'; ++i) {
         dst[i] = src[i];
-        if (src[i] == '\0') {
-            break;
-        }
     }
     // ensures that the dst has always terminating character
-    dst[max_dst_length - 1] = '\0';
+    dst[i] = '\0';
 
     return src[i] == '\0';
 }
@@ -61,6 +58,16 @@ bool string_substring_idx(const char* str, ssize_t start_index, ssize_t end_inde
     dst[ext_len] = '\0';
 
     return true;
+}
+
+char* string_substring_char(const char* str, char c) {
+    do {
+        if (*str == c) {
+            return (char*)str;
+        }
+    } while (*str++);
+
+    return NULL;
 }
 
 ssize_t string_index_of(const char* str, char c) { return string_index_of_nth(str, c, 1); }
@@ -193,4 +200,24 @@ bool string_add_number_postfix(char* dst, size_t max_dst_length, const char* str
     string_reverse(dst, start_index, i - 1);
 
     return num == 0;
+}
+
+int string_to_int(const char* str) {
+    if (string_is_empty(str)) {
+        return 0;
+    }
+    int result;
+    int sign;
+
+    result = 0;
+    sign = 1;
+    while (('-' == (*str)) || ((*str) == '+')) {
+        if (*str == '-') sign = sign * -1;
+        str++;
+    }
+    while ((*str >= '0') && (*str <= '9')) {
+        result = (result * 10) + ((*str) - '0');
+        str++;
+    }
+    return (result * sign);
 }
