@@ -50,7 +50,7 @@ SurfaceSupportError surface_support_details_load(SurfaceSupportDetails* details,
         details->present_modes[i] = present_modes[i];
     }
 
-    return SURFACE_SUPPORT_NO_ERROR;
+    return SURFACE_SUPPORT_SUCCESS;
 }
 
 VkSurfaceFormatKHR surface_support_details_find_format(const SurfaceSupportDetails* details,

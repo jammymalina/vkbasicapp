@@ -21,7 +21,7 @@ static inline void library_clear(Library* library) {
 static inline LibraryError library_load(Library* library) {
     if (library->loaded) {
         log_warning("Vulkan library is already loaded");
-        return LIBRARY_NO_ERROR;
+        return LIBRARY_SUCCESS;
     }
 
     if (SDL_Vulkan_LoadLibrary(NULL) != 0) {
@@ -37,7 +37,7 @@ static inline LibraryError library_load(Library* library) {
         return LIBRARY_GET_INSTANCE_PROC_ADDR_ERROR;
     }
 
-    return LIBRARY_NO_ERROR;
+    return LIBRARY_SUCCESS;
 }
 
 static inline void library_unload(Library* library) {

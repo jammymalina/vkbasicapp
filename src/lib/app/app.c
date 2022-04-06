@@ -52,7 +52,7 @@ void app_init(App* app) {
     log_info("Application basepath %s", app->basepath);
 
     ContextError context_status = context_init(&app->context, app->window.handle);
-    ASSERT_NO_ERROR_LOG(context_status, ContextError, context_error_to_string);
+    ASSERT_SUCCESS_LOG(context_status, ContextError, context_error_to_string);
 
     PipelineRepositoryConfig pipeline_repo_config = {
         .reserved_size = 100,
@@ -68,7 +68,7 @@ void app_init(App* app) {
     RenderingContextConfig rendering_context_config = rendering_context_config_default();
     RenderingContextError render_ctx_status = rendering_context_init(
         &app->rendering_context, &app->command_context, &app->pipeline_repository, rendering_context_config);
-    ASSERT_NO_ERROR_LOG(render_ctx_status, RenderingContextError, rendering_context_error_to_string);
+    ASSERT_SUCCESS_LOG(render_ctx_status, RenderingContextError, rendering_context_error_to_string);
 
     renderer_init(&app->renderer, &app->rendering_context);
 

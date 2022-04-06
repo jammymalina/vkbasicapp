@@ -17,7 +17,7 @@ static PhysicalDeviceError physical_device_selector_validate(const PhysicalDevic
         return NO_SURFACE_PROVIDED;
     }
 
-    return PHYSICAL_DEVICE_NO_ERROR;
+    return PHYSICAL_DEVICE_SUCCESS;
 }
 
 static void physical_device_load_device_basic_props(PhysicalDevice* device) {
@@ -37,7 +37,7 @@ static PhysicalDeviceError physical_device_load_queue_families(PhysicalDevice* d
     }
     vkGetPhysicalDeviceQueueFamilyProperties(device->handle, &count, device->queue_families);
     device->queue_family_count = count;
-    return PHYSICAL_DEVICE_NO_ERROR;
+    return PHYSICAL_DEVICE_SUCCESS;
 }
 
 static PhysicalDeviceError physical_device_load_extensions(PhysicalDevice* device) {
@@ -60,7 +60,7 @@ static PhysicalDeviceError physical_device_load_extensions(PhysicalDevice* devic
         }
     }
 
-    return PHYSICAL_DEVICE_NO_ERROR;
+    return PHYSICAL_DEVICE_SUCCESS;
 }
 
 static void physical_device_selector_load_extended_feature_chain(
@@ -84,12 +84,12 @@ static PhysicalDeviceError physical_device_selector_load_device_data(
 
     physical_device_load_device_basic_props(device);
     status = physical_device_load_queue_families(device);
-    ASSERT_NO_ERROR(status, status);
+    ASSERT_SUCCESS(status, status);
     status = physical_device_load_extensions(device);
-    ASSERT_NO_ERROR(status, status);
+    ASSERT_SUCCESS(status, status);
     physical_device_selector_load_extended_feature_chain(selector, device);
 
-    return PHYSICAL_DEVICE_NO_ERROR;
+    return PHYSICAL_DEVICE_SUCCESS;
 }
 
 static bool physical_device_selector_validate_features(
@@ -271,7 +271,7 @@ PhysicalDeviceError physical_device_selector_select(PhysicalDeviceSelector* sele
     physical_device_clear(device);
 
     PhysicalDeviceError status = physical_device_selector_validate(selector);
-    ASSERT_NO_ERROR(status, status);
+    ASSERT_SUCCESS(status, status);
 
     uint32_t device_count = 0;
     VkResult device_status = vkEnumeratePhysicalDevices(selector->instance->handle, &device_count, NULL);
@@ -296,11 +296,11 @@ PhysicalDeviceError physical_device_selector_select(PhysicalDeviceSelector* sele
         physical_device_clear(&devices[i]);
     }
 
-    status = PHYSICAL_DEVICE_NO_ERROR;
-    for (uint32_t i = 0; i < device_count && status == PHYSICAL_DEVICE_NO_ERROR; ++i) {
+    status = PHYSICAL_DEVICE_SUCCESS;
+    for (uint32_t i = 0; i < device_count && status == PHYSICAL_DEVICE_SUCCESS; ++i) {
         status = physical_device_selector_load_device_data(selector, &devices[i], device_handles[i]);
     }
-    ASSERT_NO_ERROR(status, status);
+    ASSERT_SUCCESS(status, status);
 
     for (uint32_t i = 0; i < device_count; ++i) {
         Rating rating = physical_device_selector_rate_device(selector, &devices[i]);
@@ -324,7 +324,7 @@ PhysicalDeviceError physical_device_selector_select(PhysicalDeviceSelector* sele
     physical_device_selector_finalize_device(selector, best_device, device);
     physical_device_selector_destroy_devices(selector, devices, device_count);
 
-    return PHYSICAL_DEVICE_NO_ERROR;
+    return PHYSICAL_DEVICE_SUCCESS;
 }
 
 bool physical_device_selector_add_required_extension(PhysicalDeviceSelector* selector, const char* extension_name) {

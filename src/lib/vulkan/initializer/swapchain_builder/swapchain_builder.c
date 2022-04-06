@@ -10,13 +10,13 @@ static SwapchainError swapchain_builder_validate(const SwapchainBuilder* builder
         return NO_DEVICE_PROVIDED_SWAPCHAIN;
     }
 
-    return SWAPCHAIN_NO_ERROR;
+    return SWAPCHAIN_SUCCESS;
 }
 
 SwapchainError swapchain_builder_build(SwapchainBuilder* builder, Swapchain* swapchain) {
     swapchain_clear(swapchain);
     SwapchainError status = swapchain_builder_validate(builder);
-    ASSERT_NO_ERROR(status, status);
+    ASSERT_SUCCESS(status, status);
 
     const PhysicalDevice* physical_device = builder->device->physical_device;
     const Instance* instance = physical_device->instance;
@@ -34,7 +34,7 @@ SwapchainError swapchain_builder_build(SwapchainBuilder* builder, Swapchain* swa
 
     SurfaceSupportDetails surface_support;
     SurfaceSupportError surface_status = surface_support_details_load(&surface_support, physical_device);
-    ASSERT_NO_ERROR(surface_status, FAILED_QUERY_SURFACE_SUPPORT_DETAILS);
+    ASSERT_SUCCESS(surface_status, FAILED_QUERY_SURFACE_SUPPORT_DETAILS);
 
     uint32_t image_count = surface_support.capabilities.minImageCount + 1;
     if (surface_support.capabilities.maxImageCount > 0 && image_count > surface_support.capabilities.maxImageCount) {
@@ -102,11 +102,11 @@ SwapchainError swapchain_builder_build(SwapchainBuilder* builder, Swapchain* swa
     }
 
     status = swapchain_load_images(swapchain);
-    ASSERT_NO_ERROR(status, status);
+    ASSERT_SUCCESS(status, status);
     status = swapchain_load_image_views(swapchain);
-    ASSERT_NO_ERROR(status, status);
+    ASSERT_SUCCESS(status, status);
 
-    return SWAPCHAIN_NO_ERROR;
+    return SWAPCHAIN_SUCCESS;
 }
 
 bool swapchain_builder_add_desired_format(SwapchainBuilder* builder, VkSurfaceFormatKHR format) {

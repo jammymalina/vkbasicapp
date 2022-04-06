@@ -27,7 +27,7 @@ FunctionLoaderError function_loader_load_global_functions() {
     }
 
 #include "../../core/function_list.h"
-    return FUNCTION_LOADER_NO_ERROR;
+    return FUNCTION_LOADER_SUCCESS;
 }
 
 FunctionLoaderError function_loader_load_instance_vulkan_functions(VkInstance instance) {
@@ -46,7 +46,7 @@ FunctionLoaderError function_loader_load_instance_vulkan_functions(VkInstance in
     }
 
 #include "../../core/function_list.h"
-    return FUNCTION_LOADER_NO_ERROR;
+    return FUNCTION_LOADER_SUCCESS;
 }
 
 FunctionLoaderError function_loader_load_device_level_functions(VkDevice device) {
@@ -66,5 +66,5 @@ FunctionLoaderError function_loader_load_device_level_functions(VkDevice device)
     }
 
 #include "../../core/function_list.h"
-    return FUNCTION_LOADER_NO_ERROR;
+    return FUNCTION_LOADER_SUCCESS;
 }

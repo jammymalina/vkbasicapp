@@ -17,7 +17,7 @@ static InstanceError instance_builder_validate(const InstanceBuilder* builder) {
     if (builder->system == NULL) {
         return NO_SYSTEM_INFO_PRESENT;
     }
-    return INSTANCE_NO_ERROR;
+    return INSTANCE_SUCCESS;
 }
 
 static InstanceError instance_builder_load_window_extensions(InstanceBuilder* builder) {
@@ -39,7 +39,7 @@ static InstanceError instance_builder_load_window_extensions(InstanceBuilder* bu
     }
 
     builder->extension_count += count;
-    return INSTANCE_NO_ERROR;
+    return INSTANCE_SUCCESS;
 }
 
 static InstanceError instance_builder_load_surface(InstanceBuilder* builder, Instance* instance) {
@@ -49,7 +49,7 @@ static InstanceError instance_builder_load_surface(InstanceBuilder* builder, Ins
         return WINDOWING_EXTENSIONS_NOT_PRESENT;
     }
     instance->surface = surface;
-    return INSTANCE_NO_ERROR;
+    return INSTANCE_SUCCESS;
 }
 
 static bool instance_builder_load_default_extensions(InstanceBuilder* builder) {
@@ -99,10 +99,10 @@ static VkResult instance_builder_create_debug_messenger(
 
 InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instance) {
     InstanceError status = instance_builder_validate(builder);
-    ASSERT_NO_ERROR(status, status);
+    ASSERT_SUCCESS(status, status);
 
     status = instance_builder_load_window_extensions(builder);
-    ASSERT_NO_ERROR(status, status);
+    ASSERT_SUCCESS(status, status);
     if (!instance_builder_load_default_extensions(builder)) {
         return TOO_MANY_INSTANCE_EXTENSIONS_REQUESTED;
     }
@@ -145,16 +145,16 @@ InstanceError instance_builder_build(InstanceBuilder* builder, Instance* instanc
 
     instance->handle = handle;
     builder->extension_count = 0;
-    ASSERT_NO_ERROR(status, status);
+    ASSERT_SUCCESS(status, status);
 
     FunctionLoaderError load_status = function_loader_load_instance_vulkan_functions(instance->handle);
-    if (load_status != FUNCTION_LOADER_NO_ERROR) {
+    if (load_status != FUNCTION_LOADER_SUCCESS) {
         return FAILED_TO_LOAD_INSTANCE_FUNCTIONS;
     }
     instance->loaded_instance_functions = true;
 
     status = instance_builder_load_surface(builder, instance);
-    ASSERT_NO_ERROR(status, status);
+    ASSERT_SUCCESS(status, status);
 
 #ifdef DEBUG
     VkResult messenger_status =

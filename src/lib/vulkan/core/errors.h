@@ -21,14 +21,14 @@
         }                                                                                                              \
     } while (0)
 
-#define ASSERT_NO_ERROR(err, ...)                                                                                      \
+#define ASSERT_SUCCESS(err, ...)                                                                                       \
     do {                                                                                                               \
         if (err) {                                                                                                     \
             return __VA_ARGS__;                                                                                        \
         }                                                                                                              \
     } while (0)
 
-#define ASSERT_NO_ERROR_LOG(err, err_type, error_str_func, ...)                                                        \
+#define ASSERT_SUCCESS_LOG(err, err_type, error_str_func, ...)                                                         \
     do {                                                                                                               \
         err_type cached_error = err;                                                                                   \
         if (cached_error) {                                                                                            \
@@ -38,7 +38,7 @@
     } while (0)
 
 typedef enum FunctionLoaderError {
-    FUNCTION_LOADER_NO_ERROR,
+    FUNCTION_LOADER_SUCCESS,
     FUNCTION_LOADER_ERROR,
 } FunctionLoaderError;
 
@@ -52,7 +52,7 @@ static inline const char* function_loader_error_to_string(FunctionLoaderError er
 }
 
 typedef enum LibraryError {
-    LIBRARY_NO_ERROR,
+    LIBRARY_SUCCESS,
     LIBRARY_UNAVAILABLE,
     LIBRARY_GET_INSTANCE_PROC_ADDR_ERROR,
 } LibraryError;
@@ -69,7 +69,7 @@ static inline const char* library_error_to_string(LibraryError err) {
 }
 
 typedef enum InstanceError {
-    INSTANCE_NO_ERROR,
+    INSTANCE_SUCCESS,
     NO_SYSTEM_INFO_PRESENT,
     VULKAN_VERSION_UNAVAILABLE,
     FAILED_CREATE_INSTANCE,
@@ -107,7 +107,7 @@ static inline const char* instance_error_to_string(InstanceError err) {
 }
 
 typedef enum PhysicalDeviceError {
-    PHYSICAL_DEVICE_NO_ERROR,
+    PHYSICAL_DEVICE_SUCCESS,
     NO_INSTANCE_PROVIDED,
     NO_SURFACE_PROVIDED,
     FAILED_ENUMERATE_PHYSICAL_DEVICES,
@@ -145,7 +145,7 @@ static inline const char* physical_device_error_to_string(PhysicalDeviceError er
 }
 
 typedef enum SurfaceSupportError {
-    SURFACE_SUPPORT_NO_ERROR,
+    SURFACE_SUPPORT_SUCCESS,
     SURFACE_HANDLE_NULL,
     FAILED_GET_SURFACE_CAPABILITIES,
     FAILED_ENUMERATE_SURFACE_FORMATS,
@@ -174,7 +174,7 @@ static inline const char* surface_support_error_to_string(SurfaceSupportError er
 }
 
 typedef enum DeviceError {
-    DEVICE_NO_ERROR,
+    DEVICE_SUCCESS,
     FAILED_CREATE_DEVICE,
     NO_PHYSICAL_DEVICE_PROVIDED,
     TOO_MANY_QUEUE_DESCRIPTORS_REQUESTED,
@@ -197,7 +197,7 @@ static inline const char* device_error_to_string(DeviceError err) {
 }
 
 typedef enum SwapchainError {
-    SWAPCHAIN_NO_ERROR,
+    SWAPCHAIN_SUCCESS,
     SWAPCHAIN_EXPIRED,
     NO_DEVICE_PROVIDED_SWAPCHAIN,
     FAILED_QUERY_SURFACE_SUPPORT_DETAILS,
@@ -232,7 +232,7 @@ static inline const char* swapchain_error_to_string(SwapchainError err) {
 }
 
 typedef enum ContextError {
-    CONTEXT_NO_ERROR,
+    CONTEXT_SUCCESS,
     CONTEXT_INIT_ERROR,
 } ContextError;
 
@@ -246,7 +246,7 @@ static inline const char* context_error_to_string(ContextError err) {
 }
 
 typedef enum RenderingContextError {
-    RENDERING_CONTEXT_NO_ERROR,
+    RENDERING_CONTEXT_SUCCESS,
     RENDERING_CONTEXT_SWAPCHAIN_ERROR,
     RENDERING_CONTEXT_COMMAND_CONTEXT_ERROR,
     RENDERING_CONTEXT_INIT_ERROR,

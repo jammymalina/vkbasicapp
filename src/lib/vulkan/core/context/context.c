@@ -14,9 +14,9 @@
 
 ContextError context_init(Context* context, void* window_handle) {
     // TODO: Read vulkan configuration from ini file
-    ASSERT_NO_ERROR_LOG(library_load(&context->library), LibraryError, library_error_to_string, CONTEXT_INIT_ERROR);
+    ASSERT_SUCCESS_LOG(library_load(&context->library), LibraryError, library_error_to_string, CONTEXT_INIT_ERROR);
     function_loader_load_external_function((PFN_vkGetInstanceProcAddr)context->library.load_function);
-    ASSERT_NO_ERROR_LOG(function_loader_load_global_functions(), FunctionLoaderError, function_loader_error_to_string,
+    ASSERT_SUCCESS_LOG(function_loader_load_global_functions(), FunctionLoaderError, function_loader_error_to_string,
         CONTEXT_INIT_ERROR);
 
     if (!system_info_init(&context->system)) {
@@ -35,7 +35,7 @@ ContextError context_init(Context* context, void* window_handle) {
     instance_builder.debug_enabled = true;
     instance_builder_add_layer(&instance_builder, "VK_LAYER_KHRONOS_validation");
 #endif
-    ASSERT_NO_ERROR_LOG(instance_builder_build(&instance_builder, &context->instance), InstanceError,
+    ASSERT_SUCCESS_LOG(instance_builder_build(&instance_builder, &context->instance), InstanceError,
         instance_error_to_string, CONTEXT_INIT_ERROR);
 
     PhysicalDeviceSelector device_selector = {0};
@@ -52,16 +52,16 @@ ContextError context_init(Context* context, void* window_handle) {
 
     PhysicalDeviceError phys_dev_status = physical_device_selector_select(&device_selector, &context->physical_device);
     physical_device_selector_destroy(&device_selector);
-    ASSERT_NO_ERROR_LOG(phys_dev_status, PhysicalDeviceError, physical_device_error_to_string, CONTEXT_INIT_ERROR);
+    ASSERT_SUCCESS_LOG(phys_dev_status, PhysicalDeviceError, physical_device_error_to_string, CONTEXT_INIT_ERROR);
 
     DeviceBuilder device_builder = {0};
     device_builder_clear(&device_builder);
     device_builder.physical_device = &context->physical_device;
 
     DeviceError device_status = device_builder_build(&device_builder, &context->device);
-    ASSERT_NO_ERROR_LOG(device_status, DeviceError, device_error_to_string, CONTEXT_INIT_ERROR);
+    ASSERT_SUCCESS_LOG(device_status, DeviceError, device_error_to_string, CONTEXT_INIT_ERROR);
 
-    return CONTEXT_NO_ERROR;
+    return CONTEXT_SUCCESS;
 }
 
 void context_destroy(Context* context) {

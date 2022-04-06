@@ -9,7 +9,7 @@ static DeviceError device_builder_validate(const DeviceBuilder* builder) {
         return NO_PHYSICAL_DEVICE_PROVIDED;
     }
 
-    return DEVICE_NO_ERROR;
+    return DEVICE_SUCCESS;
 }
 
 bool device_builder_add_custom_queue_descriptor(DeviceBuilder* builder, const QueueDescriptor* descriptor) {
@@ -25,7 +25,7 @@ DeviceError device_builder_build(DeviceBuilder* builder, Device* device) {
     device_clear(device);
 
     DeviceError status = device_builder_validate(builder);
-    ASSERT_NO_ERROR(status, status);
+    ASSERT_SUCCESS(status, status);
 
     if (builder->custom_queue_descriptor_count == 0) {
         bool desc_status = true;
@@ -92,7 +92,7 @@ DeviceError device_builder_build(DeviceBuilder* builder, Device* device) {
     device->physical_device = builder->physical_device;
 
     FunctionLoaderError load_status = function_loader_load_device_level_functions(device->handle);
-    if (load_status != FUNCTION_LOADER_NO_ERROR) {
+    if (load_status != FUNCTION_LOADER_SUCCESS) {
         return FAILED_TO_LOAD_DEVICE_FUNCTIONS;
     }
     device->loaded_device_functions = true;
@@ -102,5 +102,5 @@ DeviceError device_builder_build(DeviceBuilder* builder, Device* device) {
     }
     device->queue_descriptor_count = builder->custom_queue_descriptor_count;
 
-    return DEVICE_NO_ERROR;
+    return DEVICE_SUCCESS;
 }

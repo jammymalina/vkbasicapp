@@ -46,7 +46,7 @@ SwapchainError swapchain_load_images(Swapchain* swapchain) {
 
     swapchain->image_count = count;
     swapchain->init_images = true;
-    return SWAPCHAIN_NO_ERROR;
+    return SWAPCHAIN_SUCCESS;
 }
 
 SwapchainError swapchain_load_image_views(Swapchain* swapchain) {
@@ -85,7 +85,7 @@ SwapchainError swapchain_load_image_views(Swapchain* swapchain) {
         swapchain->init_image_view_count += 1;
     }
 
-    return SWAPCHAIN_NO_ERROR;
+    return SWAPCHAIN_SUCCESS;
 }
 
 SwapchainError swapchain_acquire_next_image(Swapchain* swapchain, VkSemaphore semaphore) {
@@ -96,7 +96,7 @@ SwapchainError swapchain_acquire_next_image(Swapchain* swapchain, VkSemaphore se
     VkResult status = vkAcquireNextImageKHR(
         swapchain->device->handle, swapchain->handle, TIME_MS_TO_NS(10000), semaphore, NULL, &swapchain->image_index);
     if (status == VK_SUCCESS) {
-        return SWAPCHAIN_NO_ERROR;
+        return SWAPCHAIN_SUCCESS;
     }
     if (status == VK_ERROR_OUT_OF_DATE_KHR || status == VK_SUBOPTIMAL_KHR) {
         return SWAPCHAIN_EXPIRED;
