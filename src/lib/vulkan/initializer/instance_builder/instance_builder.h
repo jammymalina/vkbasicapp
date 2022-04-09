@@ -5,10 +5,13 @@
 #include <stdint.h>
 #include <vulkan/vulkan.h>
 
+#include "../../../core/string/string.h"
 #include "../../core/errors.h"
 #include "../../core/instance.h"
 #include "../../core/system_info/system_info.h"
 #include "../../utils/debug.h"
+
+#define INSTANCE_MAX_NAME_SIZE 128
 
 #define INSTANCE_BUILDER_MAX_EXTENSIONS 64
 #define INSTANCE_BUILDER_MAX_LAYERS 16
@@ -25,8 +28,8 @@ typedef struct InstanceBuilder {
     void* window_handle;
     const SystemInfo* system;
 
-    const char* app_name;
-    const char* engine_name;
+    char app_name[INSTANCE_MAX_NAME_SIZE];
+    char engine_name[INSTANCE_MAX_NAME_SIZE];
     uint32_t application_version;
     uint32_t engine_version;
 
@@ -45,10 +48,10 @@ typedef struct InstanceBuilder {
 static inline void instance_builder_clear(InstanceBuilder* builder) {
     builder->window_handle = NULL;
     builder->system = NULL;
-    builder->app_name = "app";
-    builder->engine_name = "engine";
-    builder->application_version = 0;
-    builder->engine_version = 0;
+    string_copy("app", builder->app_name, INSTANCE_MAX_NAME_SIZE);
+    string_copy("engine", builder->engine_name, INSTANCE_MAX_NAME_SIZE);
+    builder->application_version = VK_MAKE_VERSION(1, 0, 0);
+    builder->engine_version = VK_MAKE_VERSION(1, 0, 0);
     builder->debug_enabled = false;
     builder->debug_message_severity = INSTANCE_BUILDER_DEFAULT_DEBUG_MESSAGE_SEVERITY;
     builder->debug_message_type = INSTANCE_BUILDER_DEFAULT_DEBUG_MESSAGE_TYPE;

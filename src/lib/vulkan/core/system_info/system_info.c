@@ -80,7 +80,7 @@ bool system_info_init(SystemInfo* info) { return system_info_load_layers(info) &
 
 bool system_info_is_layer_available(const SystemInfo* info, const char* layer_name) {
     for (uint32_t i = 0; i < info->available_layer_count; ++i) {
-        if (string_equal(layer_name, info->available_layers[i].layerName)) {
+        if (string_equals(layer_name, info->available_layers[i].layerName)) {
             return true;
         }
     }
@@ -89,7 +89,7 @@ bool system_info_is_layer_available(const SystemInfo* info, const char* layer_na
 
 bool system_info_is_extension_available(const SystemInfo* info, const char* extension_name) {
     for (uint32_t i = 0; i < info->available_extension_count; ++i) {
-        if (string_equal(extension_name, info->available_extensions[i].extensionName)) {
+        if (string_equals(extension_name, info->available_extensions[i].extensionName)) {
             return true;
         }
     }

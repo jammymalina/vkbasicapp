@@ -32,7 +32,7 @@ typedef struct PhysicalDeviceSelector {
     const Instance* instance;
 
     const char* device_name;
-    PreferredDeviceType prefered_device_type;
+    PreferredDeviceType preferred_device_type;
     bool allow_any_type;
 
     uint32_t desired_api_version;
@@ -48,7 +48,7 @@ typedef struct PhysicalDeviceSelector {
     VkPhysicalDeviceFeatures required_features;
     VkPhysicalDeviceFeatures desired_features;
     PhysicalDeviceFeatureItems extended_features_chain;
-    bool enabled_experimental_feature_validation;
+    bool experimental_feature_validation_enabled;
 
     const char* required_extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS];
     uint32_t required_extension_count;
@@ -61,7 +61,7 @@ typedef struct PhysicalDeviceSelector {
 
 static inline void physical_device_selector_clear(PhysicalDeviceSelector* selector) {
     selector->instance = NULL;
-    selector->prefered_device_type = DISCRETE_GPU;
+    selector->preferred_device_type = DISCRETE_GPU;
     selector->allow_any_type = true;
     selector->device_name = "";
     selector->desired_api_version = VK_VERSION_1_3;
@@ -79,7 +79,7 @@ static inline void physical_device_selector_clear(PhysicalDeviceSelector* select
 
     selector->required_features = (VkPhysicalDeviceFeatures){0};
     selector->desired_features = (VkPhysicalDeviceFeatures){0};
-    selector->enabled_experimental_feature_validation = false;
+    selector->experimental_feature_validation_enabled = false;
     physical_device_feature_items_clear(&selector->extended_features_chain);
 };
 
@@ -88,6 +88,8 @@ PhysicalDeviceError physical_device_selector_select(PhysicalDeviceSelector* sele
 bool physical_device_selector_add_required_extension(PhysicalDeviceSelector* selector, const char* extension_name);
 bool physical_device_selector_add_desired_extension(PhysicalDeviceSelector* selector, const char* extension_name);
 
+PhysicalDeviceFeatureItem* physical_device_selector_get_extended_required_features_item(
+    PhysicalDeviceSelector* selector, VkStructureType feature_type);
 bool physical_device_selector_add_extended_required_features_with_offset(
     PhysicalDeviceSelector* selector, void* features, size_t features_byte_size, size_t features_next_byte_offset);
 

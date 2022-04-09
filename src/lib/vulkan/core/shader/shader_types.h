@@ -38,12 +38,12 @@ typedef struct ShaderBinding {
 } ShaderBinding;
 
 static inline ShaderType shader_extension_to_type(const char* extension) {
-    if (string_equal(extension, "vert")) return SHADER_TYPE_VERTEX;
-    if (string_equal(extension, "frag")) return SHADER_TYPE_FRAGMENT;
-    if (string_equal(extension, "tesc")) return SHADER_TYPE_TESS_CTRL;
-    if (string_equal(extension, "tese")) return SHADER_TYPE_TESS_EVAL;
-    if (string_equal(extension, "geom")) return SHADER_TYPE_GEOMETRY;
-    if (string_equal(extension, "comp")) return SHADER_TYPE_COMPUTE;
+    if (string_equals(extension, "vert")) return SHADER_TYPE_VERTEX;
+    if (string_equals(extension, "frag")) return SHADER_TYPE_FRAGMENT;
+    if (string_equals(extension, "tesc")) return SHADER_TYPE_TESS_CTRL;
+    if (string_equals(extension, "tese")) return SHADER_TYPE_TESS_EVAL;
+    if (string_equals(extension, "geom")) return SHADER_TYPE_GEOMETRY;
+    if (string_equals(extension, "comp")) return SHADER_TYPE_COMPUTE;
 
     return SHADER_TYPE_UNDEFINED;
 }

@@ -44,6 +44,8 @@ static inline void* physical_device_feature_items_get_head(const PhysicalDeviceF
 void physical_device_feature_items_copy(
     const PhysicalDeviceFeatureItems* src, PhysicalDeviceFeatureItems* dst, bool clear_features);
 
+PhysicalDeviceFeatureItem* physical_device_feature_items_get_by_structure_type(
+    PhysicalDeviceFeatureItems* items, VkStructureType feature_type);
 bool physical_device_feature_items_add(
     PhysicalDeviceFeatureItems* items, void* features, size_t features_byte_size, size_t features_next_byte_offset);
 bool physical_device_feature_items_compare(

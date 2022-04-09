@@ -1,5 +1,6 @@
 #include "./string.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 
 size_t string_length(const char* str) {
@@ -9,7 +10,7 @@ size_t string_length(const char* str) {
     return i;
 }
 
-bool string_is_empty(const char* str) { return str[0] == '\0'; }
+bool string_is_empty(const char* str) { return str == NULL || str[0] == '\0'; }
 
 bool string_copy(const char* src, char* dst, size_t max_dst_length) {
     if (max_dst_length == 0) {
@@ -100,7 +101,7 @@ ssize_t string_last_index_of_nth(const char* str, char c, size_t n) {
     return -1;
 }
 
-bool string_equal(const char* str1, const char* str2) {
+bool string_equals(const char* str1, const char* str2) {
     size_t i;
     for (i = 0; str1[i] == str2[i] && str1[i] != '\0' && str2[i] != '\0'; ++i)
         ;
@@ -202,22 +203,54 @@ bool string_add_number_postfix(char* dst, size_t max_dst_length, const char* str
     return num == 0;
 }
 
-int string_to_int(const char* str) {
+bool string_validate_int(const char* str, bool sign) {
     if (string_is_empty(str)) {
-        return 0;
+        return false;
     }
-    int result;
-    int sign;
 
-    result = 0;
-    sign = 1;
     while (('-' == (*str)) || ((*str) == '+')) {
-        if (*str == '-') sign = sign * -1;
+        if (*str == '-' && !sign) {
+            return false;
+        }
         str++;
     }
     while ((*str >= '0') && (*str <= '9')) {
-        result = (result * 10) + ((*str) - '0');
         str++;
     }
-    return (result * sign);
+    return *str == '\0';
+}
+
+bool string_parse_semantic_version(const char* str, uint32_t version_dst[3]) {
+    version_dst[0] = version_dst[1] = version_dst[2] = 0;
+
+    if (string_is_empty(str)) {
+        return false;
+    }
+
+    uint32_t version[3] = {0, 0, 0};
+    size_t index = 0;
+    do {
+        uint32_t result = 0;
+        while ((*str >= '0') && (*str <= '9')) {
+            result = (result * 10) + ((*str) - '0');
+            str++;
+        }
+        if (*str != '.' && *str != '\0') {
+            return false;
+        }
+        if (*str == '.' && *(str + 1) == '\0') {
+            return false;
+        }
+        if (*str == '.') {
+            str++;
+        }
+        version[index] = result;
+        ++index;
+    } while (*str && index < 3);
+
+    version_dst[0] = version[0];
+    version_dst[1] = version[1];
+    version_dst[2] = version[2];
+
+    return true;
 }

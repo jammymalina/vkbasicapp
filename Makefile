@@ -66,7 +66,7 @@ $(SHADER_OBJECTS): $(SHADER_OBJ_DIR)/%.svm : $(SHADER_SRC_DIR)/%
 $(CONFIG_OBJECTS): $(CONFIG_OBJ_DIR)/% : $(CONFIG_SRC_DIR)/%
 	@mkdir -p $(dir $@)
 	@cp $< $@
-	@echo "Compiled "$<" successfully!"
+	@echo "Copied "$<" successfully!"
 
 .PHONE: run
 run: $(BINDIR)/$(TARGET)

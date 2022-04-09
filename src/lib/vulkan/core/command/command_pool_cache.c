@@ -13,7 +13,7 @@ bool command_pool_cache_add(CommandPoolCache* cache, const CommandPool* pool) {
         return false;
     }
     for (uint32_t i = 0; i < COMMAND_POOL_CACHE_MAX_POOLS; ++i) {
-        if (string_equal(cache->items[i].name, COMMAND_POOL_AVAILABLE_KEY)) {
+        if (string_equals(cache->items[i].name, COMMAND_POOL_AVAILABLE_KEY)) {
             command_pool_copy(pool, &cache->items[i], false);
             return true;
         }
@@ -23,7 +23,7 @@ bool command_pool_cache_add(CommandPoolCache* cache, const CommandPool* pool) {
 
 CommandPool* command_pool_cache_get(CommandPoolCache* cache, const char* name) {
     for (uint32_t i = 0; i < COMMAND_POOL_CACHE_MAX_POOLS; ++i) {
-        if (string_equal(cache->items[i].name, name)) {
+        if (string_equals(cache->items[i].name, name)) {
             return &cache->items[i];
         }
     }
@@ -32,7 +32,7 @@ CommandPool* command_pool_cache_get(CommandPoolCache* cache, const char* name) {
 
 bool command_pool_cache_has(const CommandPoolCache* cache, const char* name) {
     for (uint32_t i = 0; i < COMMAND_POOL_CACHE_MAX_POOLS; ++i) {
-        if (string_equal(cache->items[i].name, name)) {
+        if (string_equals(cache->items[i].name, name)) {
             return true;
         }
     }
@@ -41,7 +41,7 @@ bool command_pool_cache_has(const CommandPoolCache* cache, const char* name) {
 
 bool command_pool_cache_remove(CommandPoolCache* cache, const char* name) {
     for (uint32_t i = 0; i < COMMAND_POOL_CACHE_MAX_POOLS; ++i) {
-        if (string_equal(cache->items[i].name, name)) {
+        if (string_equals(cache->items[i].name, name)) {
             command_pool_destroy(&cache->items[i]);
             return true;
         }

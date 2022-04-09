@@ -27,10 +27,8 @@ ContextError context_init(Context* context, void* window_handle) {
     instance_builder_clear(&instance_builder);
     instance_builder.system = &context->system;
     instance_builder.window_handle = window_handle;
-    instance_builder.app_name = "Basic app";
-    instance_builder.application_version = VK_MAKE_VERSION(1, 0, 0);
-    instance_builder.engine_version = VK_MAKE_VERSION(1, 0, 0);
-    instance_builder.engine_name = "jammyengine";
+    // instance_builder.app_name = "Basic app";
+    // instance_builder.engine_name = "jammyengine";
 #ifdef DEBUG
     instance_builder.debug_enabled = true;
     instance_builder_add_layer(&instance_builder, "VK_LAYER_KHRONOS_validation");
@@ -41,7 +39,7 @@ ContextError context_init(Context* context, void* window_handle) {
     PhysicalDeviceSelector device_selector = {0};
     physical_device_selector_clear(&device_selector);
     device_selector.instance = &context->instance;
-    device_selector.enabled_experimental_feature_validation = true;
+    device_selector.experimental_feature_validation_enabled = true;
 
     // enable dynamic rendering
     VkPhysicalDeviceVulkan13Features features_13 = {0};

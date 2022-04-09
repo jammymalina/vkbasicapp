@@ -28,6 +28,18 @@ void physical_device_feature_items_copy(
     }
 }
 
+PhysicalDeviceFeatureItem* physical_device_feature_items_get_by_structure_type(
+    PhysicalDeviceFeatureItems* items, VkStructureType feature_type) {
+    for (uint32_t i = 0; i < items->length; ++i) {
+        VkStructureType item_type;
+        mem_copy(items->items[i].features, &item_type, sizeof(VkStructureType));
+        if (item_type == feature_type) {
+            return &items->items[i];
+        }
+    }
+    return NULL;
+}
+
 bool physical_device_feature_items_add(
     PhysicalDeviceFeatureItems* items, void* features, size_t features_byte_size, size_t features_next_byte_offset) {
     if (items->length >= PHYSICAL_DEVICE_MAX_EXTENDED_FEATURES || features_byte_size == 0) {
@@ -116,7 +128,7 @@ bool physical_device_add_extension(PhysicalDevice* device, const char* extension
 
 bool physical_device_has_extension(const PhysicalDevice* device, const char* extension_name) {
     for (uint32_t i = 0; i < device->extension_count; ++i) {
-        if (string_equal(extension_name, device->extensions[i])) {
+        if (string_equals(extension_name, device->extensions[i])) {
             return true;
         }
     }

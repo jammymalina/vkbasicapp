@@ -2,7 +2,7 @@
 
 #include "../renderer/core/rendering_context_config.h"
 #include "../vulkan/initializer/shader/graphics_pipeline_builder/graphics_pipeline_builder.h"
-#include "./app_builder.h"
+#include "./app_builder/app_builder.h"
 
 static bool init_shaders(App* app) {
     GraphicsPipelineBuilder builder;

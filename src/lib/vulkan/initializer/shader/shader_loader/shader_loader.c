@@ -41,7 +41,7 @@ static const Shader* shader_loader_cache_get_shader(ShaderLoader* loader, const 
     md5_string(buffer, string_length(buffer), key);
 
     for (size_t i = 0; i < loader->cache_size; ++i) {
-        if (string_equal(key, loader->cache[i].key)) {
+        if (string_equals(key, loader->cache[i].key)) {
             loader->cache[i].active = true;
             return &loader->cache[i].value;
         }

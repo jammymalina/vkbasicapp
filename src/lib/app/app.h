@@ -9,7 +9,7 @@
 #include "../vulkan/core/context/context.h"
 #include "../vulkan/core/rendering/rendering_context.h"
 #include "../vulkan/core/shader/pipeline_repository.h"
-#include "../window/app_window.h"
+#include "./window/app_window.h"
 
 typedef struct App {
     char basepath[PATH_MAX_SIZE];

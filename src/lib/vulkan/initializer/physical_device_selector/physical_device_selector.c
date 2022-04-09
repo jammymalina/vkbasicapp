@@ -122,7 +122,7 @@ static bool physical_device_selector_validate_extensions(
     uint32_t match_count = 0;
     for (uint32_t i = 0; i < required_extension_count; ++i) {
         for (uint32_t j = 0; j < device->extension_count; ++j) {
-            if (string_equal(required_extensions[i], device->extensions[j])) {
+            if (string_equals(required_extensions[i], device->extensions[j])) {
                 ++match_count;
             }
         }
@@ -134,7 +134,7 @@ static Rating physical_device_selector_rate_device(PhysicalDeviceSelector* selec
     Rating rate = HIGH_RATING;
 
     // Check device name
-    if (!string_is_empty(selector->device_name) && !string_equal(selector->device_name, device->name)) {
+    if (!string_is_empty(selector->device_name) && !string_equals(selector->device_name, device->name)) {
         return LOW_RATING;
     }
 
@@ -147,7 +147,7 @@ static Rating physical_device_selector_rate_device(PhysicalDeviceSelector* selec
     }
 
     // Check device type
-    if (device->properties.deviceType != preferred_device_type_to_vulkan_type(selector->prefered_device_type)) {
+    if (device->properties.deviceType != preferred_device_type_to_vulkan_type(selector->preferred_device_type)) {
         if (!selector->allow_any_type) {
             return LOW_RATING;
         }
@@ -197,7 +197,7 @@ static Rating physical_device_selector_rate_device(PhysicalDeviceSelector* selec
     }
 
     // Check features
-    if (selector->enabled_experimental_feature_validation) {
+    if (selector->experimental_feature_validation_enabled) {
         if (!physical_device_selector_validate_features(&selector->required_features, &device->features.features)) {
             return LOW_RATING;
         }
@@ -343,6 +343,11 @@ bool physical_device_selector_add_desired_extension(PhysicalDeviceSelector* sele
     selector->desired_extensions[selector->desired_extension_count] = extension_name;
     selector->desired_extension_count += 1;
     return true;
+}
+
+PhysicalDeviceFeatureItem* physical_device_selector_get_extended_required_features_item(
+    PhysicalDeviceSelector* selector, VkStructureType feature_type) {
+    return physical_device_feature_items_get_by_structure_type(&selector->extended_features_chain, feature_type);
 }
 
 bool physical_device_selector_add_extended_required_features_with_offset(
