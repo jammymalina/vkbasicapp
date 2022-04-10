@@ -20,10 +20,11 @@ static char* rstrip(char* s) {
 
 /* Strip quote chars off start and end of given string, in place. Return s. */
 static char* qstrip(char* s) {
-    if (string_is_empty(s)) {
+    size_t slen = string_length(s);
+    if (slen < 2) {
         return s;
     }
-    char* p = s + string_length(s);
+    char* p = s + slen;
     if (*s == '"' && *(p - 1) == '"') {
         s++;
         *(p - 1) = '\0';
