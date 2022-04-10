@@ -149,7 +149,7 @@ static bool physical_device_selector_validate_extensions(
         if (required_extensions[i].enabled) {
             ++enabled_extension_count;
         }
-        for (uint32_t j = 0; j < device->extension_count; ++j) {
+        for (uint32_t j = 0; j < device->extension_count && required_extensions[i].enabled; ++j) {
             if (string_equals(required_extensions[i].name, device->extensions[j])) {
                 ++match_count;
             }

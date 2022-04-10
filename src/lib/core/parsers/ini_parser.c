@@ -18,6 +18,19 @@ static char* rstrip(char* s) {
     return s;
 }
 
+/* Strip quote chars off start and end of given string, in place. Return s. */
+static char* qstrip(char* s) {
+    if (string_is_empty(s)) {
+        return s;
+    }
+    char* p = s + string_length(s);
+    if (*s == '"' && *(p - 1) == '"') {
+        s++;
+        *(p - 1) = '\0';
+    }
+    return s;
+}
+
 /* Return pointer to first non-whitespace char in given string. */
 static char* lskip(const char* s) {
     while (*s && isspace((unsigned char)(*s))) s++;
@@ -94,6 +107,7 @@ static int ini_parse_stream(ini_parser_reader reader, void* stream, ini_parser_h
                 }
                 value = lskip(value);
                 rstrip(value);
+                value = qstrip(value);
 
                 /* Valid name[=:]value pair found, call handler */
                 string_copy(name, prev_name, sizeof(prev_name));

@@ -1,6 +1,5 @@
 #include "./app.h"
 
-#include "../renderer/core/rendering_context_config.h"
 #include "../vulkan/initializer/shader/graphics_pipeline_builder/graphics_pipeline_builder.h"
 #include "./app_builder/app_builder.h"
 
@@ -60,15 +59,6 @@ void app_init(App* app) {
         log_error("Unable to initialize pipeline repository");
         return;
     }
-
-    command_context_init(&app->command_context, &app->context);
-
-    RenderingContextConfig rendering_context_config = rendering_context_config_default();
-    RenderingContextError render_ctx_status = rendering_context_init(
-        &app->rendering_context, &app->command_context, &app->pipeline_repository, rendering_context_config);
-    ASSERT_SUCCESS_LOG(render_ctx_status, RenderingContextError, rendering_context_error_to_string);
-
-    renderer_init(&app->renderer, &app->rendering_context);
 
     if (!init_shaders(app)) {
         return;
