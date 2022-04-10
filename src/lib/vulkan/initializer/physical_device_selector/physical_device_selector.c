@@ -240,14 +240,25 @@ static Rating physical_device_selector_rate_device(PhysicalDeviceSelector* selec
     }
 
     // Check memory
+    Rating memory_ratings[device->memory_properties.memoryHeapCount];
     for (uint32_t i = 0; i < device->memory_properties.memoryHeapCount; ++i) {
+        memory_ratings[i] = HIGH_RATING;
         if (device->memory_properties.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
             if (device->memory_properties.memoryHeaps[i].size < selector->required_mem_size) {
-                return LOW_RATING;
+                memory_ratings[i] = LOW_RATING;
             } else if (device->memory_properties.memoryHeaps[i].size < selector->desired_mem_size) {
-                rate = MEDIUM_RATING;
+                memory_ratings[i] = MEDIUM_RATING;
             }
         }
+    }
+    Rating max_rating = LOW_RATING;
+    for (uint32_t i = 0; i < device->memory_properties.memoryHeapCount; ++i) {
+        if (memory_ratings[i] > max_rating) {
+            max_rating = memory_ratings[i];
+        }
+    }
+    if (max_rating < rate) {
+        rate = max_rating;
     }
 
     return rate;
