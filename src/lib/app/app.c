@@ -52,9 +52,6 @@ void app_init(App* app) {
         return;
     }
 
-    ContextError context_status = context_init(&app->context, app->window.handle);
-    ASSERT_SUCCESS_LOG(context_status, ContextError, context_error_to_string);
-
     PipelineRepositoryConfig pipeline_repo_config = {
         .reserved_size = 100,
     };

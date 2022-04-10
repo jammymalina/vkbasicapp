@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include "../logger/logger.h"
 #include "../string/string.h"
 
 typedef struct IniParserStringContext {

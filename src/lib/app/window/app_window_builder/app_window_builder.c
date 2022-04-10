@@ -4,6 +4,7 @@
 #include <SDL2/SDL_video.h>
 
 #include "../../../core/logger/logger.h"
+#include "../../../core/parsers/ini_parser.h"
 #include "../../../core/utils/flags.h"
 #include "../app_window.h"
 
@@ -48,18 +49,22 @@ int app_window_builder_set_config_value(AppWindowBuilder* builder, const char* n
         return 1;
     }
     if (string_equals(name, "x")) {
+        INI_PARSER_ASSERT_INT("window", name, value, true, 1);
         builder->x = string_to_int(value, int);
         return 1;
     }
     if (string_equals(name, "y")) {
+        INI_PARSER_ASSERT_INT("window", name, value, true, 1);
         builder->y = string_to_int(value, int);
         return 1;
     }
     if (string_equals(name, "width")) {
+        INI_PARSER_ASSERT_INT("window", name, value, false, 1);
         builder->width = string_to_int(value, int);
         return 1;
     }
     if (string_equals(name, "height")) {
+        INI_PARSER_ASSERT_INT("window", name, value, false, 1);
         builder->height = string_to_int(value, int);
         return 1;
     }

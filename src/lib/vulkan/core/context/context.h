@@ -25,7 +25,6 @@ static inline void context_clear(Context* context) {
     device_clear(&context->device);
 }
 
-ContextError context_init(Context* context, void* window_handle);
 void context_destroy(Context* context);
 
 #endif

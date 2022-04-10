@@ -20,6 +20,28 @@ static PhysicalDeviceError physical_device_selector_validate(const PhysicalDevic
     return PHYSICAL_DEVICE_SUCCESS;
 }
 
+static bool physical_device_selector_set_extension(
+    PhysicalDeviceExtension* extensions, uint32_t* extension_count, const char* extension_name, bool enabled) {
+    if (string_length(extension_name) > VK_MAX_EXTENSION_NAME_SIZE - 1) {
+        return false;
+    }
+
+    for (uint32_t i = 0; i < *extension_count; ++i) {
+        if (string_equals(extension_name, extensions[i].name)) {
+            extensions[i].enabled = enabled;
+            return true;
+        }
+    }
+
+    if (*extension_count >= PHYSICAL_DEVICE_MAX_EXTENSIONS) {
+        return false;
+    }
+    string_copy(extension_name, extensions[*extension_count].name, VK_MAX_EXTENSION_NAME_SIZE);
+    extensions[*extension_count].enabled = true;
+    ++(*extension_count);
+    return true;
+}
+
 static void physical_device_load_device_basic_props(PhysicalDevice* device) {
     vkGetPhysicalDeviceProperties(device->handle, &device->properties);
     vkGetPhysicalDeviceMemoryProperties(device->handle, &device->memory_properties);
@@ -117,17 +139,23 @@ static bool physical_device_selector_validate_features(
 }
 
 static bool physical_device_selector_validate_extensions(
-    const char* required_extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS], uint32_t required_extension_count,
-    const PhysicalDevice* device) {
+    const PhysicalDeviceExtension required_extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS],
+    uint32_t required_extension_count, const PhysicalDevice* device) {
     uint32_t match_count = 0;
+
+    uint32_t enabled_extension_count = 0;
+
     for (uint32_t i = 0; i < required_extension_count; ++i) {
+        if (required_extensions[i].enabled) {
+            ++enabled_extension_count;
+        }
         for (uint32_t j = 0; j < device->extension_count; ++j) {
-            if (string_equals(required_extensions[i], device->extensions[j])) {
+            if (string_equals(required_extensions[i].name, device->extensions[j])) {
                 ++match_count;
             }
         }
     }
-    return match_count == required_extension_count;
+    return match_count == enabled_extension_count;
 }
 
 static Rating physical_device_selector_rate_device(PhysicalDeviceSelector* selector, const PhysicalDevice* device) {
@@ -251,14 +279,20 @@ static void physical_device_selector_finalize_device(
     bool portability_ext_available =
         selector->enable_portability_subset && physical_device_has_extension(src, "VK_KHR_portability_subset");
     for (uint32_t i = 0; i < selector->required_extension_count; ++i) {
-        if (!physical_device_has_extension(dst, selector->required_extensions[i])) {
-            physical_device_add_extension(dst, selector->required_extensions[i]);
+        if (!selector->required_extensions[i].enabled) {
+            continue;
+        }
+        if (!physical_device_has_extension(dst, selector->required_extensions[i].name)) {
+            physical_device_add_extension(dst, selector->required_extensions[i].name);
         }
     }
     for (uint32_t i = 0; i < selector->desired_extension_count; ++i) {
-        if (physical_device_has_extension(src, selector->desired_extensions[i])) {
-            if (!physical_device_has_extension(dst, selector->desired_extensions[i])) {
-                physical_device_add_extension(dst, selector->desired_extensions[i]);
+        if (!selector->desired_extensions[i].enabled) {
+            continue;
+        }
+        if (physical_device_has_extension(src, selector->desired_extensions[i].name)) {
+            if (!physical_device_has_extension(dst, selector->desired_extensions[i].name)) {
+                physical_device_add_extension(dst, selector->desired_extensions[i].name);
             }
         }
     }
@@ -327,22 +361,31 @@ PhysicalDeviceError physical_device_selector_select(PhysicalDeviceSelector* sele
     return PHYSICAL_DEVICE_SUCCESS;
 }
 
+bool physical_device_selector_set_required_extension(
+    PhysicalDeviceSelector* selector, const char* extension_name, bool enabled) {
+    return physical_device_selector_set_extension(
+        selector->required_extensions, &selector->required_extension_count, extension_name, enabled);
+}
+bool physical_device_selector_set_desired_extension(
+    PhysicalDeviceSelector* selector, const char* extension_name, bool enabled) {
+    return physical_device_selector_set_extension(
+        selector->desired_extensions, &selector->desired_extension_count, extension_name, enabled);
+}
+
 bool physical_device_selector_add_required_extension(PhysicalDeviceSelector* selector, const char* extension_name) {
-    if (selector->required_extension_count >= PHYSICAL_DEVICE_MAX_EXTENSIONS) {
-        return false;
-    }
-    selector->required_extensions[selector->required_extension_count] = extension_name;
-    selector->required_extension_count += 1;
-    return true;
+    return physical_device_selector_set_required_extension(selector, extension_name, true);
+}
+
+bool physical_device_selector_remove_required_extension(PhysicalDeviceSelector* selector, const char* extension_name) {
+    return physical_device_selector_set_required_extension(selector, extension_name, false);
 }
 
 bool physical_device_selector_add_desired_extension(PhysicalDeviceSelector* selector, const char* extension_name) {
-    if (selector->desired_extension_count >= PHYSICAL_DEVICE_MAX_EXTENSIONS) {
-        return false;
-    }
-    selector->desired_extensions[selector->desired_extension_count] = extension_name;
-    selector->desired_extension_count += 1;
-    return true;
+    return physical_device_selector_set_desired_extension(selector, extension_name, true);
+}
+
+bool physical_device_selector_remove_desired_extension(PhysicalDeviceSelector* selector, const char* extension_name) {
+    return physical_device_selector_set_desired_extension(selector, extension_name, false);
 }
 
 PhysicalDeviceFeatureItem* physical_device_selector_get_extended_required_features_item(

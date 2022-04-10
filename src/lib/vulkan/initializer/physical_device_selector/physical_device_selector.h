@@ -28,6 +28,31 @@ static inline VkPhysicalDeviceType preferred_device_type_to_vulkan_type(Preferre
     }
 }
 
+static inline PreferredDeviceType preferred_device_type_from_string(const char* type) {
+    if (string_equals(type, "other")) {
+        return OTHER_DEVICE;
+    }
+    if (string_equals(type, "integrated")) {
+        return INTEGRATED_GPU;
+    }
+    if (string_equals(type, "discrete")) {
+        return DISCRETE_GPU;
+    }
+    if (string_equals(type, "virtual")) {
+        return VIRTUAL_GPU;
+    }
+    if (string_equals(type, "cpu")) {
+        return CPU;
+    }
+
+    return OTHER_DEVICE;
+}
+
+typedef struct PhysicalDeviceExtension {
+    char name[VK_MAX_EXTENSION_NAME_SIZE];
+    bool enabled;
+} PhysicalDeviceExtension;
+
 typedef struct PhysicalDeviceSelector {
     const Instance* instance;
 
@@ -50,9 +75,9 @@ typedef struct PhysicalDeviceSelector {
     PhysicalDeviceFeatureItems extended_features_chain;
     bool experimental_feature_validation_enabled;
 
-    const char* required_extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS];
+    PhysicalDeviceExtension required_extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS];
     uint32_t required_extension_count;
-    const char* desired_extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS];
+    PhysicalDeviceExtension desired_extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS];
     uint32_t desired_extension_count;
 
     bool use_first_gpu_unconditionally;
@@ -85,8 +110,15 @@ static inline void physical_device_selector_clear(PhysicalDeviceSelector* select
 
 PhysicalDeviceError physical_device_selector_select(PhysicalDeviceSelector* selector, PhysicalDevice* device);
 
+bool physical_device_selector_set_required_extension(
+    PhysicalDeviceSelector* selector, const char* extension_name, bool enabled);
+bool physical_device_selector_set_desired_extension(
+    PhysicalDeviceSelector* selector, const char* extension_name, bool enabled);
+
 bool physical_device_selector_add_required_extension(PhysicalDeviceSelector* selector, const char* extension_name);
+bool physical_device_selector_remove_required_extension(PhysicalDeviceSelector* selector, const char* extension_name);
 bool physical_device_selector_add_desired_extension(PhysicalDeviceSelector* selector, const char* extension_name);
+bool physical_device_selector_remove_desired_extension(PhysicalDeviceSelector* selector, const char* extension_name);
 
 PhysicalDeviceFeatureItem* physical_device_selector_get_extended_required_features_item(
     PhysicalDeviceSelector* selector, VkStructureType feature_type);

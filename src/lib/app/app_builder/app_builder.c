@@ -2,6 +2,7 @@
 
 #include "../../core/parsers/ini_parser.h"
 #include "../../core/string/string.h"
+#include "../../vulkan/core/errors.h"
 
 static int app_builder_parser_handler(
     void* user, const char* section, const char* name, const char* value, int lineno) {
@@ -13,15 +14,7 @@ static int app_builder_parser_handler(
     if (string_equals(section, "window")) {
         return app_window_builder_set_config_value(&builder->window_builder, name, value);
     }
-    if (string_equals(section, "app")) {
-        return context_builder_set_config_value(&builder->context_builder, section, name, value);
-    }
-    if (string_equals(section, "features")) {
-        return context_builder_set_config_value(&builder->context_builder, section, name, value);
-    }
-    if (string_equals(section, "optional_features")) {
-        return context_builder_set_config_value(&builder->context_builder, section, name, value);
-    }
+    context_builder_set_config_value(&builder->context_builder, section, name, value);
     return 1;
 }
 
@@ -37,6 +30,9 @@ bool app_builder_build(AppBuilder* builder, const char* config_file, App* app) {
     }
 
     builder->context_builder.window_handle = app->window.handle;
+    ContextError context_status = context_builder_build(&builder->context_builder, &app->context);
+
+    ASSERT_SUCCESS_LOG(context_status, ContextError, context_error_to_string, false);
 
     return true;
 }
