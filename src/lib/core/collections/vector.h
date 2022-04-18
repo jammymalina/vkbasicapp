@@ -22,6 +22,8 @@
 
 #define vector_clear(pv) (vector_destroy(pv), vector_init(pv))
 
+#define vector_empty_noshrink(pv) (void)((pv)->size = 0)
+
 #define VECTOR_MINCAP_ ((size_t)10)
 
 static inline size_t vector_min_(size_t a, size_t b) { return a < b ? a : b; }

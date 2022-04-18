@@ -12,4 +12,11 @@
 
 #define TIME_MS_TO_NS(milliseconds) (((uint64_t)(milliseconds)) * (1000 * 1000))
 
+#define SWAP_VALUES(x, y)                                                                                              \
+    do {                                                                                                               \
+        __typeof__(x) _swap_val = x;                                                                                   \
+        x = y;                                                                                                         \
+        y = _swap_val;                                                                                                 \
+    } while (0)
+
 #endif
