@@ -2,23 +2,6 @@
 
 #include "../../../core/memory/memory.h"
 #include "../../utils/memory.h"
-#include "allocation_blocks.h"
-
-static const char* memory_usage_strings[VULKAN_MEMORY_USAGES_TOTAL] = {
-    "VULKAN_MEMORY_USAGE_UNKNOWN",
-    "VULKAN_MEMORY_USAGE_GPU_ONLY",
-    "VULKAN_MEMORY_USAGE_CPU_ONLY",
-    "VULKAN_MEMORY_USAGE_CPU_TO_GPU",
-    "VULKAN_MEMORY_USAGE_GPU_TO_CPU",
-};
-
-static const char* allocation_type_strings[VULKAN_ALLOCATION_TYPES_TOTAL] = {
-    "VULKAN_ALLOCATION_TYPE_FREE",
-    "VULKAN_ALLOCATION_TYPE_BUFFER",
-    "VULKAN_ALLOCATION_TYPE_IMAGE",
-    "VULKAN_ALLOCATION_TYPE_IMAGE_LINEAR",
-    "VULKAN_ALLOCATION_TYPE_IMAGE_OPTIMAL",
-};
 
 static void vulkan_memory_allocator_empty_garbage_index(VulkanMemoryAllocator* allocator, size_t index) {
     VulkanAllocationList* garbage = &allocator->garbage_lists[index];
@@ -63,7 +46,7 @@ MemoryContextError vulkan_memory_allocator_init(
     }
 
     if (allocator_info->garbage_list_count > 0) {
-        VulkanMemoryBlockList* garbage_lists =
+        VulkanAllocationList* garbage_lists =
             mem_alloc(sizeof(VulkanAllocationList) * allocator_info->garbage_list_count);
         ASSERT_ALLOC(garbage_lists, "Unable to create garbage block lists", MEMORY_CONTEXT_INIT_ERROR);
 
@@ -133,7 +116,7 @@ MemoryContextError vulkan_memory_allocator_allocate(
     VulkanMemoryBlockInfo block_info = {
         .device = allocator->device,
         .memory_type_index = memory_type_index,
-        .size = req->size,
+        .size = block_size,
         .usage = req->usage,
     };
     status = vulkan_memory_block_init(block, &block_info);

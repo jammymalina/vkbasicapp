@@ -299,4 +299,29 @@ typedef enum MemoryContextError {
     MEMORY_CONTEXT_UNABLE_TO_ADD_BLOCK,
 } MemoryContextError;
 
+static inline const char* memory_context_error_to_string(MemoryContextError err) {
+    switch (err) {
+        case MEMORY_CONTEXT_INVALID_MEMORY_INDEX:
+            return "MEMORY_CONTEXT_INVALID_MEMORY_INDEX";
+        case MEMORY_CONTEXT_DEVICE_NOT_PROVIDED:
+            return "MEMORY_CONTEXT_DEVICE_NOT_PROVIDED";
+        case MEMORY_CONTEXT_ALLOCATION_ERROR:
+            return "MEMORY_CONTEXT_ALLOCATION_ERROR";
+        case MEMORY_CONTEXT_MAPPING_ERROR:
+            return "MEMORY_CONTEXT_MAPPING_ERROR";
+        case MEMORY_CONTEXT_INIT_ERROR:
+            return "MEMORY_CONTEXT_INIT_ERROR";
+        case MEMORY_CONTEXT_LOW_FREE_BLOCK_SPACE:
+            return "MEMORY_CONTEXT_LOW_FREE_BLOCK_SPACE";
+        case MEMORY_CONTEXT_UNSUITABLE_BLOCK:
+            return "MEMORY_CONTEXT_UNSUITABLE_BLOCK";
+        case MEMORY_CONTEXT_NO_SUITABLE_MEMORY_INDEX:
+            return "MEMORY_CONTEXT_NO_SUITABLE_MEMORY_INDEX";
+        case MEMORY_CONTEXT_UNABLE_TO_ADD_BLOCK:
+            return "MEMORY_CONTEXT_UNABLE_TO_ADD_BLOCK";
+        default:
+            return "Uknown";
+    }
+}
+
 #endif
