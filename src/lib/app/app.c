@@ -111,6 +111,7 @@ void app_destroy(App* app) {
     pipeline_repository_destroy(&app->pipeline_repository);
     rendering_context_destroy(&app->rendering_context);
     command_context_destroy(&app->command_context);
+    memory_context_destroy(&app->memory_context);
     context_destroy(&app->context);
     app_window_destroy(&app->window);
     app_clear(app);

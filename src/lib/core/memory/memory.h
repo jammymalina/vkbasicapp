@@ -39,6 +39,14 @@ typedef unsigned char byte;
 #define ALIGN(x, a) (((x) + ((a)-1)) & ~((a)-1))
 #define ALIGN_MEM(x, a) ((((uintptr_t)(x)) + ((a)-1)) & ~(((uintptr_t)(a)) - 1))
 
+#define is_2_byte_aligned_size(size) (((size)&1) == 0)
+#define is_4_byte_aligned_size(size) (((size)&3) == 0)
+#define is_8_byte_aligned_size(size) (((size)&7) == 0)
+#define is_16_byte_aligned_size(size) (((size)&15) == 0)
+#define is_32_byte_aligned_size(size) (((size)&31) == 0)
+#define is_64_byte_aligned_size(size) (((size)&63) == 0)
+#define is_1289_byte_aligned_size(size) (((size)&127) == 0)
+
 #define is_2_byte_aligned(ptr) ((((uintptr_t)(ptr)) & 1) == 0)
 #define is_4_byte_aligned(ptr) ((((uintptr_t)(ptr)) & 3) == 0)
 #define is_8_byte_aligned(ptr) ((((uintptr_t)(ptr)) & 7) == 0)

@@ -39,6 +39,7 @@ MemoryContextError vulkan_memory_allocator_init(
     bool status = true;
 
     for (uint32_t i = 0; i < VK_MAX_MEMORY_TYPES && status; ++i) {
+        vector_init(&allocator->blocks[i]);
         status = vector_reserve(&allocator->blocks[i], reserve_size);
     }
     if (!status) {
@@ -51,6 +52,7 @@ MemoryContextError vulkan_memory_allocator_init(
         ASSERT_ALLOC(garbage_lists, "Unable to create garbage block lists", MEMORY_CONTEXT_INIT_ERROR);
 
         for (size_t i = 0; i < allocator_info->garbage_list_count && status; ++i) {
+            vector_init(&garbage_lists[i]);
             status = vector_reserve(&garbage_lists[i], reserve_size);
         }
         if (!status) {

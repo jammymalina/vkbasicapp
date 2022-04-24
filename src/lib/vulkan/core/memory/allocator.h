@@ -19,9 +19,9 @@ typedef struct VulkanMemoryAllocatorInfo {
     size_t garbage_list_count;
 } VulkanMemoryAllocatorInfo;
 
-static inline VulkanMemoryAllocatorInfo vulkan_memory_allocator_info_get_default(const Device* device) {
+static inline VulkanMemoryAllocatorInfo vulkan_memory_allocator_info_get_default() {
     return (VulkanMemoryAllocatorInfo){
-        .device = device,
+        .device = NULL,
         .device_local_block_size_MB = 256,
         .host_visible_block_size_MB = 256,
         .garbage_list_count = 1,

@@ -3,16 +3,23 @@
 
 #include "../device/device.h"
 #include "./allocator.h"
+#include "./buffer/buffer_object.h"
 
-typedef struct VulkanMemoryContext {
+typedef struct MemoryContext {
     const Device* device;
-    VulkanMemoryAllocator allocator;
-} VulkanMemoryContext;
 
-static inline void vulkan_memory_context_clear(VulkanMemoryContext* context) {
+    VulkanMemoryAllocator allocator;
+
+    VulkanBufferObject* buffer_objects;
+    size_t buffer_object_count;
+} MemoryContext;
+
+static inline void memory_context_clear(MemoryContext* context) {
     vulkan_memory_allocator_clear(&context->allocator);
+    context->buffer_objects = NULL;
+    context->buffer_object_count = 0;
 }
 
-void vulkan_memory_context_destroy(VulkanMemoryContext* context);
+void memory_context_destroy(MemoryContext* context);
 
 #endif

@@ -39,7 +39,7 @@ static char* lskip(const char* s) {
 }
 
 /* Return pointer to first char (of chars) or inline comment in given string,
-   or pointer to NUL at end of string if neither found. Inline comment must
+   or pointer to NULL at end of string if neither found. Inline comment must
    be prefixed by a whitespace character to register as a comment. */
 static char* find_chars_or_comment(const char* s, const char* chars) {
     int was_space = 0;

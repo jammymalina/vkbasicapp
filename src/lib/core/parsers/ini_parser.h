@@ -8,7 +8,7 @@
 #define INI_PARSER_MAX_NAME_SIZE 256
 
 #define INI_PARSER_START_COMMENT_PREFIXES ";#"
-#define INI_PARSER_INLINE_COMMENT_PREFIXES ";"
+#define INI_PARSER_INLINE_COMMENT_PREFIXES ";#"
 
 #define INI_PARSER_ASSERT_INT(section, name, value, sign, result)                                                      \
     do {                                                                                                               \

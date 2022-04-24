@@ -13,19 +13,23 @@ static int app_builder_rendering_context_config_set_value(AppBuilder* builder, c
         builder->rendering_context_config.frames_in_flight = string_to_int(value, uint32_t);
         return 1;
     }
+
     if (string_equals(name, "clear_color")) {
         builder->rendering_context_config.clear_color = color_from_hex_string(value);
         return 1;
     }
+
     if (string_equals(name, "depth_enabled")) {
         builder->rendering_context_config.depth_enabled = string_equals(value, "1");
         return 1;
     }
+
     if (string_equals(name, "render_timeout_ms")) {
         INI_PARSER_ASSERT_INT("rendering_context", name, value, false, 1);
         builder->rendering_context_config.render_timeout_ms = string_to_int(value, uint64_t);
         return 1;
     }
+
     return 1;
 }
 
@@ -42,6 +46,10 @@ static int app_builder_parser_handler(
 
     if (string_equals(section, "rendering_context")) {
         return app_builder_rendering_context_config_set_value(builder, name, value);
+    }
+
+    if (string_equals(section, "memory")) {
+        return memory_context_builder_set_config_value(&builder->memory_context_builder, name, value);
     }
 
     context_builder_set_config_value(&builder->context_builder, section, name, value);
@@ -69,6 +77,11 @@ bool app_builder_build(AppBuilder* builder, const char* config_file, App* app) {
     RenderingContextError render_ctx_status = rendering_context_init(
         &app->rendering_context, &app->command_context, &app->pipeline_repository, builder->rendering_context_config);
     ASSERT_SUCCESS_LOG(render_ctx_status, RenderingContextError, rendering_context_error_to_string, false);
+
+    builder->memory_context_builder.device = &app->context.device;
+    MemoryContextError memory_ctx_status =
+        memory_context_builder_build(&builder->memory_context_builder, &app->memory_context);
+    ASSERT_SUCCESS_LOG(memory_ctx_status, MemoryContextError, memory_context_error_to_string, false);
 
     renderer_init(&app->renderer, &app->rendering_context);
 

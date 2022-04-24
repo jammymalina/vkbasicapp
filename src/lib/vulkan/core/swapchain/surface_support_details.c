@@ -29,8 +29,8 @@ SurfaceSupportError surface_support_details_load(SurfaceSupportDetails* details,
         return TOO_MANY_SURFACE_PRESENT_MODES_REQUESTED;
     }
 
-    VkSurfaceFormatKHR formats[format_count];
-    VkPresentModeKHR present_modes[present_mode_count];
+    VkSurfaceFormatKHR formats[SURFACE_MAX_FORMATS];
+    VkPresentModeKHR present_modes[SURFACE_MAX_PRESENT_MODES];
 
     ASSERT_VK_LOG(vkGetPhysicalDeviceSurfaceFormatsKHR(device->handle, surface, &format_count, formats),
         "Unable to load surface formats", FAILED_ENUMERATE_SURFACE_FORMATS);

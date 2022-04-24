@@ -57,7 +57,7 @@ DeviceError device_builder_build(DeviceBuilder* builder, Device* device) {
             extension_count += 1;
         }
     }
-    const char* extensions[extension_count + 1];
+    const char* extensions[PHYSICAL_DEVICE_MAX_EXTENSIONS + 1];
     for (uint32_t i = 0; i < extension_count; ++i) {
         extensions[i] = builder->physical_device->extensions[i];
     }
