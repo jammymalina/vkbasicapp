@@ -61,6 +61,16 @@ static inline void vulkan_allocation_clear(VulkanAllocation* allocation) {
     allocation->data = NULL;
 }
 
+static inline void vulkan_allocation_copy(const VulkanAllocation* src, VulkanAllocation* dst) {
+    vulkan_allocation_clear(dst);
+    dst->id = src->id;
+    dst->block = src->block;
+    dst->device_memory_handle = src->device_memory_handle;
+    dst->offset = src->offset;
+    dst->size = src->size;
+    dst->data = src->data;
+}
+
 typedef struct VulkanMemoryBlockInfo {
     const Device* device;
     uint32_t memory_type_index;

@@ -31,14 +31,20 @@ typedef struct VulkanBufferObject {
 
     VKBOPropertyFlags property_flags;
     VkDeviceSize size;
+
+    VkMemoryRequirements2 memory_requirements;
 } VulkanBufferObject;
 
-void vulkan_buffer_object_clear(VulkanBufferObject* buff) {
+static inline void vulkan_buffer_object_clear(VulkanBufferObject* buff) {
     buff->device = NULL;
     buff->handle = VK_NULL_HANDLE;
+    buff->property_flags = 0;
+    buff->size = 0;
+    buff->memory_requirements = (VkMemoryRequirements2){0};
 }
 
 MemoryContextError vulkan_buffer_object_init(VulkanBufferObject* buff, const VulkanBufferObjectInfo* info);
+void vulkan_buffer_object_copy(const VulkanBufferObject* src, VulkanBufferObject* dst);
 
 void vulkan_buffer_object_destroy(VulkanBufferObject* buff);
 
