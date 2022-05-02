@@ -48,6 +48,15 @@ static inline void memory_allocation_cache_clear(MemoryAllocationCache* cache) {
     cache->records_size = 0;
 }
 
+static inline bool memory_allocation_cache_is_full(const MemoryAllocationCache* cache) {
+    for (size_t i = 0; i < cache->records_size; ++i) {
+        if (memory_allocation_cache_record_is_empty(&cache->records[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool memory_allocation_cache_init(MemoryAllocationCache* cache, size_t cache_size);
 
 const MemoryAllocationCacheRecord* memory_allocation_cache_get_record(

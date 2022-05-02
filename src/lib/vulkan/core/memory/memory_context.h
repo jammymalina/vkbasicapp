@@ -20,7 +20,7 @@ static inline void memory_context_clear(MemoryContext* context) {
 }
 
 MemoryContextError memory_context_allocate_buffer(
-    MemoryContext* context, const char* name, VulkanBufferObjectInfo* buffer_info);
+    MemoryContext* context, const char* name, const VulkanBufferObjectInfo* buffer_info);
 const VulkanBufferObject* memory_context_get_buffer(const MemoryContext* context, const char* name);
 
 void memory_context_destroy(MemoryContext* context);

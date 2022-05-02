@@ -299,6 +299,7 @@ typedef enum MemoryContextError {
     MEMORY_CONTEXT_UNABLE_TO_ADD_BLOCK,
     MEMORY_CONTEXT_INVALID_BUFFER_SIZE,
     MEMORY_CONTEXT_BUFFER_INIT_ERROR,
+    MEMORY_CONTEXT_CACHE_FULL,
 } MemoryContextError;
 
 static inline const char* memory_context_error_to_string(MemoryContextError err) {
@@ -325,6 +326,8 @@ static inline const char* memory_context_error_to_string(MemoryContextError err)
             return "MEMORY_CONTEXT_INVALID_BUFFER_SIZE";
         case MEMORY_CONTEXT_BUFFER_INIT_ERROR:
             return "MEMORY_CONTEXT_BUFFER_INIT_ERROR";
+        case MEMORY_CONTEXT_CACHE_FULL:
+            return "MEMORY_CONTEXT_CACHE_FULL";
         default:
             return "Uknown";
     }
