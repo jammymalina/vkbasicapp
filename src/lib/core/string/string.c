@@ -220,6 +220,17 @@ bool string_validate_int(const char* str, bool sign) {
     return *str == '\0';
 }
 
+bool string_to_hex(char* dst, size_t dst_size, uint8_t* data, size_t data_count) {
+    const static char hex[] = "0123456789abcdef";
+    size_t i;
+    for (i = 0; i < data_count && i < dst_size - 1; ++i) {
+        dst[(i * 2) + 0] = hex[((data[i] & 0xF0) >> 4)];
+        dst[(i * 2) + 1] = hex[((data[i] & 0x0F) >> 0)];
+    }
+    dst[i] = '\0';
+    return i == data_count;
+}
+
 bool string_parse_semantic_version(const char* str, uint32_t version_dst[3]) {
     version_dst[0] = version_dst[1] = version_dst[2] = 0;
 

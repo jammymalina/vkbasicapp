@@ -44,9 +44,10 @@ MemoryContextError memory_context_allocate_buffer(
     return MEMORY_CONTEXT_SUCCESS;
 }
 
-const VulkanBufferObject* memory_context_get_buffer(const MemoryContext* context, const char* name) {
-    const MemoryAllocationCacheRecord* record =
-        memory_allocation_cache_get_record(&context->allocation_cache, name, MEMORY_ALLOCACTION_CACHE_BUFFER_RECORD);
+const VulkanBufferObject* memory_context_get_buffer(
+    const MemoryContext* context, const char* name, uint32_t page_index) {
+    const MemoryAllocationCacheRecord* record = memory_allocation_cache_get_record(
+        &context->allocation_cache, name, MEMORY_ALLOCACTION_CACHE_BUFFER_RECORD, page_index);
     if (record == NULL) {
         return NULL;
     }

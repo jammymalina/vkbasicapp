@@ -31,6 +31,8 @@ bool string_add_number_postfix(char* dst, size_t max_dst_length, const char* str
 
 bool string_validate_int(const char* str, bool _sign);
 
+bool string_to_hex(char* dst, size_t dst_size, uint8_t* data, size_t data_count);
+
 #define string_to_int(str, int_type)                                                                                   \
     ({                                                                                                                 \
         int_type _result;                                                                                              \

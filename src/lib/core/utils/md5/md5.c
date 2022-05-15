@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 
+#include "../../string/string.h"
+
 #define A 0x67452301
 #define B 0xefcdab89
 #define C 0x98badcfe
@@ -134,7 +136,5 @@ void md5_string(char* input, size_t input_length, char digest[MD5_DIGEST_STRING_
     md5_update(&ctx, (uint8_t*)input, input_length);
     md5_digest(&ctx);
 
-    snprintf(digest, MD5_DIGEST_STRING_LENGTH, "%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x", ctx.digest[0], ctx.digest[1],
-        ctx.digest[2], ctx.digest[3], ctx.digest[4], ctx.digest[5], ctx.digest[6], ctx.digest[7], ctx.digest[8],
-        ctx.digest[9], ctx.digest[10], ctx.digest[11], ctx.digest[12], ctx.digest[13], ctx.digest[14], ctx.digest[15]);
+    string_to_hex(digest, MD5_DIGEST_STRING_LENGTH, ctx.digest, 16);
 }

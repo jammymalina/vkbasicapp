@@ -262,6 +262,8 @@ RenderingContextError rendering_context_end_frame(RenderingContext* rendering_co
         return RENDERING_CONTEXT_COMMAND_BUFFER_ERROR;
     }
 
+    vkCmdEndRenderingKHR(command_buffer);
+
     VkImageMemoryBarrier image_memory_barrier = {
         .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
         .pNext = NULL,
@@ -284,7 +286,6 @@ RenderingContextError rendering_context_end_frame(RenderingContext* rendering_co
 
     vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
         VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, 0, 0, NULL, 0, NULL, 1, &image_memory_barrier);
-    vkCmdEndRenderingKHR(command_buffer);
 
     ASSERT_VK(vkEndCommandBuffer(command_buffer), RENDERING_CONTEXT_COMMAND_BUFFER_ERROR);
 

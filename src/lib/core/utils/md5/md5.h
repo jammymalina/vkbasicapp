@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define MD5_DIGEST_STRING_LENGTH 17
+#define MD5_DIGEST_STRING_LENGTH 33
 
 typedef struct MD5Context {
     size_t input_size;
